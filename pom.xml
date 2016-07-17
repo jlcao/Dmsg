@@ -3,11 +3,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.dmsg</groupId>
-  <artifactId>netty-start</artifactId>
+  <artifactId>Dmsg</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+  <modules>
+    <module>core</module>
+  </modules>
+  <packaging>pom</packaging>
 
-  <name>netty-start</name>
+  <name>Dmsg</name>
   <url>http://maven.apache.org</url>
 
   <properties>
