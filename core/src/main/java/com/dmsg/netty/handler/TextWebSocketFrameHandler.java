@@ -1,4 +1,4 @@
-package com.dmsg.netty;
+package com.dmsg.netty.handler;
 
 import com.dmsg.message.MessageContext;
 import com.dmsg.message.MessageExecutor;

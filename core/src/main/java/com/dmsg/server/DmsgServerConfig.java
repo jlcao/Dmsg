@@ -1,6 +1,7 @@
 package com.dmsg.server;
 
 import com.dmsg.exception.ServerConfigException;
+import com.dmsg.utils.NullUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -24,5 +25,13 @@ public class DmsgServerConfig extends HashMap<String, Object> {
 
     }
 
+
+    public int getPort() throws ServerConfigException {
+        Object port = this.get("port");
+        if (NullUtils.isEmpty(port)){
+            throw new ServerConfigException("the port is not null");
+        }
+        return new Integer(port.toString());
+    }
 
 }

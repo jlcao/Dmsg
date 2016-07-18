@@ -1,5 +1,6 @@
-package com.dmsg.netty;
+package com.dmsg.netty.initializer;
 
+import com.dmsg.netty.handler.TextWebSocketFrameHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
