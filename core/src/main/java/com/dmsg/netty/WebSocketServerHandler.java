@@ -5,19 +5,15 @@ import com.dmsg.message.MessageContext;
 import com.dmsg.message.MessageExecutor;
 import com.dmsg.message.MessageHandler;
 import com.dmsg.message.vo.ControllerMessage;
-import com.dmsg.message.vo.FileMessage;
 import com.dmsg.message.vo.MessageType;
-import com.dmsg.message.vo.TextMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by cjl on 2016/6/17.
  */
-@Deprecated
+
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandler.class);
     private WebSocketServerHandshaker handshaker;
@@ -40,7 +36,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         //传统的HTTP接入
         if (msg instanceof FullHttpRequest) {
             handleHttpRequest(ctx, (FullHttpRequest) msg);
-        } else if (msg instanceof WebSocketFrame) {
+        } else if (msg instanceof WebSocketFrame){
             handleWebSocketFrame(ctx, (WebSocketFrame) msg);
         }
     }
@@ -63,34 +59,21 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
             return;
         }
-
-        if (frame instanceof ContinuationWebSocketFrame) {
-            TextMessage message = new TextMessage(((ContinuationWebSocketFrame) frame).text());
-            executor.execute(new MessageHandler(new MessageContext(ctx, message)));
-            ctx.channel().writeAndFlush(new TextWebSocketFrame("收到消息").toString());
-        }
-        if (frame instanceof BinaryWebSocketFrame) {
-            BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
-            FileMessage fileMessage = new FileMessage();
-            fileMessage.setByteBuf(binaryFrame.content());
-            executor.execute(new MessageHandler(new MessageContext(ctx, fileMessage)));
-        }
-        if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame text = ((TextWebSocketFrame) frame);
-            TextMessage message = new TextMessage(text.text());
-            executor.execute(new MessageHandler(new MessageContext(ctx, message)));
-            ctx.channel().writeAndFlush(new TextWebSocketFrame("收到消息").toString());
-        }
-
+        frame.retain();
+        ctx.fireChannelRead(frame);
 
     }
 
     private void handleHttpRequest(ChannelHandlerContext ctx, FullHttpRequest req) {
+        //屏蔽掉非websocket握手请求
         //如果HTTP解码失败，返回HTTP异常
-        if (!req.decoderResult().isSuccess() || (!"websocket".equals(req.headers().get("Upgrade")))) {
+        //只接受http GET和headers['Upgrade']为'websocket'的http请求
+        if (!req.decoderResult().isSuccess() || !HttpMethod.GET.equals(req.method())
+                || !"websocket".equalsIgnoreCase(req.headers().get("Upgrade").toString())) {
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
             return;
         }
+        System.out.println(req.uri());
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                 "ws://localhost:8080/websocket", null, false
         );

@@ -1,5 +1,6 @@
 package com.dmsg.message;
 
+import com.dmsg.message.vo.AuthMessage;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.message.vo.MessageType;
 import io.netty.channel.ChannelHandlerContext;
@@ -9,9 +10,8 @@ import io.netty.channel.ChannelHandlerContext;
  */
 public class MessageContext {
     private ChannelHandlerContext channelHandlerContext;
-
+    
     private MessageBase source;
-
     private MessageBase message;
     private MessageType messageType;
 
@@ -51,5 +51,9 @@ public class MessageContext {
 
     public MessageType getMessageType() {
         return messageType;
+    }
+
+    public void authentication(AuthMessage authMessage) {
+
     }
 }

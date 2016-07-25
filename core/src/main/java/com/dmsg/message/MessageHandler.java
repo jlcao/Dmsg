@@ -53,7 +53,6 @@ public class MessageHandler implements Runnable{
         if (!messageContext.getMessageType().getCode().equals(MessageType.AUTH.getCode())) {
             auth();
         }
-
         switch (messageContext.getMessageType()) {
             case AUTH:
                 processAuth();
@@ -96,7 +95,9 @@ public class MessageHandler implements Runnable{
 
     private void processAuth() {
         AuthMessage authMessage = (AuthMessage) message;
+        messageContext.authentication(authMessage);
         channelManager.addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
+
         System.out.println("登录成功"+authMessage);
         messageContext.getChannelHandlerContext().channel().writeAndFlush(new TextWebSocketFrame("登陆成功"));
     }

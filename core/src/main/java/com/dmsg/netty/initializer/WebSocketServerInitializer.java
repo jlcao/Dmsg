@@ -1,12 +1,12 @@
 package com.dmsg.netty.initializer;
 
+import com.dmsg.netty.WebSocketServerHandler;
 import com.dmsg.netty.handler.TextWebSocketFrameHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
@@ -22,7 +22,7 @@ public class WebSocketServerInitializer extends
         pipeline.addLast(new HttpServerCodec());
 		pipeline.addLast(new HttpObjectAggregator(65536));
 		pipeline.addLast(new ChunkedWriteHandler());
-		pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
+		pipeline.addLast(new WebSocketServerHandler());
 		pipeline.addLast(new TextWebSocketFrameHandler());
     }
 }
