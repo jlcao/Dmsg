@@ -12,7 +12,9 @@ public class RedisPoolBuilder {
     private JedisPoolConfig config;
 
     private RedisPoolBuilder() {
-
+        config = new JedisPoolConfig();
+        this.host = "localhost";
+        this.port = 6379;
     }
 
     public RedisPoolBuilder(String host, int port) {
@@ -34,6 +36,7 @@ public class RedisPoolBuilder {
         return this;
     }
     public JedisPool build(){
+
         JedisPool jedisPool = new JedisPool(config,host, port);
         return jedisPool;
     }
