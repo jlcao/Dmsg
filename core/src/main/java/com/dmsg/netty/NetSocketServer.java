@@ -1,5 +1,6 @@
 package com.dmsg.netty;
 
+import com.dmsg.netty.initializer.InitializerFactory;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -43,8 +44,11 @@ public class NetSocketServer {
         }
     }
 
-   /* public static void main(String[] args) {
+    public static void main(String[] args) {
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+
+        EventLoopGroup workerGroup= new NioEventLoopGroup();
         int port = 8080;
-        new NetSocketServer().run();
-    }*/
+        new NetSocketServer(bossGroup,workerGroup, InitializerFactory.create("websocket"),port).run();
+    }
 }
