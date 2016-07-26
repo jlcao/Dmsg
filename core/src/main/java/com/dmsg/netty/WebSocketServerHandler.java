@@ -6,6 +6,7 @@ import com.dmsg.message.MessageExecutor;
 import com.dmsg.message.MessageHandler;
 import com.dmsg.message.vo.ControllerMessage;
 import com.dmsg.message.vo.MessageType;
+import com.dmsg.server.DmsgServerContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -26,9 +27,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandler.class);
     private WebSocketServerHandshaker handshaker;
     private MessageExecutor executor;
+    private DmsgServerContext serverContext;
 
     public WebSocketServerHandler() {
-        executor = MessageExecutor.getInstance();
+        serverContext = DmsgServerContext.getServerContext();
+        executor = serverContext.getExecutor();
+
     }
 
     @Override
@@ -51,7 +55,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (frame instanceof CloseWebSocketFrame) {
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
             ControllerMessage controllerMessage = new ControllerMessage(MessageType.CONTROLLER_CLOSE.getCode());
-            executor.execute(new MessageHandler(new MessageContext(ctx, controllerMessage)));
+            executor.execute(new MessageHandler(new MessageContext(serverContext, ctx, controllerMessage)));
             return;
         }
         //判断是否是Ping消息

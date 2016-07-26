@@ -40,7 +40,7 @@ public class DmsgServerConfig{
     }
 
 
-    public int getPort() throws ServerConfigException {
+    public int getPort() {
         String port = properties.getProperty("port","3710");
         return new Integer(port);
     }
@@ -63,4 +63,9 @@ public class DmsgServerConfig{
         String protocol = properties.getProperty("trans.protocol", "websocket");
         return null;
     }
+
+    public String getServerNodeFlag() {
+        return properties.getProperty("redis.node.key", "dmsg.nodes");
+    }
+
 }

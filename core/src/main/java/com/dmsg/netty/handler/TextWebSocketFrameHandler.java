@@ -6,6 +6,7 @@ import com.dmsg.message.MessageHandler;
 import com.dmsg.message.vo.ControllerMessage;
 import com.dmsg.message.vo.MessageType;
 import com.dmsg.message.vo.TextMessage;
+import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -14,24 +15,26 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
  * Created by cjl on 2016/7/13.
  */
 public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
-    private MessageExecutor executor;
+    MessageExecutor executor;
+    DmsgServerContext serverContext;
 
     public TextWebSocketFrameHandler(){
-        executor = MessageExecutor.getInstance();
+        serverContext = DmsgServerContext.getServerContext();
+        executor = serverContext.getExecutor();
     }
 
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         TextMessage message = new TextMessage(msg.text());
-        executor.execute(new MessageHandler(new MessageContext(ctx, message)));
+        executor.execute(new MessageHandler(new MessageContext(serverContext,ctx, message)));
     }
 
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         ControllerMessage controllerMessage = new ControllerMessage(MessageType.CONTROLLER_CLOSE.getCode());
-        executor.execute(new MessageHandler(new MessageContext(ctx, controllerMessage)));
+        executor.execute(new MessageHandler(new MessageContext(serverContext,ctx, controllerMessage)));
         super.handlerRemoved(ctx);
     }
 

@@ -95,11 +95,17 @@ public class MessageHandler implements Runnable{
 
     private void processAuth() {
         AuthMessage authMessage = (AuthMessage) message;
-        messageContext.authentication(authMessage);
-        channelManager.addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
+        if (messageContext.authentication(authMessage)) {
+            channelManager.addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
+            System.out.println("登录成功" + authMessage);
+            messageContext.getChannelHandlerContext().channel().writeAndFlush(new TextWebSocketFrame("登陆成功"));
+        } else {
 
-        System.out.println("登录成功"+authMessage);
-        messageContext.getChannelHandlerContext().channel().writeAndFlush(new TextWebSocketFrame("登陆成功"));
+        }
+
+
+
+
     }
 
     /**
