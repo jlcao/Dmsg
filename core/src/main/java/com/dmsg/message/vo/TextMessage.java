@@ -4,7 +4,7 @@ package com.dmsg.message.vo;
  * Created by cjl on 2016/7/11.
  */
 public class TextMessage extends MessageBase {
-    private String receiver;
+
     private String text;
 
 
@@ -18,13 +18,7 @@ public class TextMessage extends MessageBase {
         return this;
     }
 
-    public String getReceiver() {
-        return receiver;
-    }
 
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
 
     public String getText() {
         return text;

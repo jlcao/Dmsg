@@ -6,6 +6,7 @@ package com.dmsg.message.vo;
 public abstract class MessageBase {
     private String type;
     private String beFrom;
+    private String receiver;
 
 
     public MessageBase(String type) {
@@ -14,6 +15,14 @@ public abstract class MessageBase {
 
     public String getType() {
         return type;
+    }
+
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
     }
 
     public void setType(String type) {

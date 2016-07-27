@@ -7,7 +7,7 @@ import com.dmsg.message.MessageContext;
  */
 public interface Filter {
 
-    public void doFilter(MessageContext messageContext);
+    public void doFilter(MessageContext messageContext, FilterChain chain);
 
     public void destroy();
 

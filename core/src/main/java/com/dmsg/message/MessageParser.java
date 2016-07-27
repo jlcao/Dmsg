@@ -24,7 +24,7 @@ public class MessageParser {
 
     }
 
-    public MessageBase parse(MessageBase message,MessageType type) {
+    private MessageBase parse(MessageBase message,MessageType type) {
         MessageBase result = null;
         switch (type) {
             case AUTH:

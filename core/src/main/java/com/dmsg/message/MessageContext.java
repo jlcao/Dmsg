@@ -59,7 +59,7 @@ public class MessageContext {
     }
 
     public boolean authentication(AuthMessage authMessage) {
-        serverContext.getAuthentication();
+        //serverContext.getAuthentication();
 
 
         return false;

@@ -9,6 +9,8 @@ public enum MessageType {
     SHAKE("SHAKE", "抖动"),
     CONTROLLER_CLOSE("CONTROLLER_CLOSE", "关闭链接"),
     TEXT("TEXT","文本"),
+    TRANSMIT("TRANSMIT","转发"),
+    OSPF("OSPF","透传"),
     FILE("FILE", "文件");
 
     private String code;

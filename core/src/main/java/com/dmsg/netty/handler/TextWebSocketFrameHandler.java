@@ -3,6 +3,7 @@ package com.dmsg.netty.handler;
 import com.dmsg.message.MessageContext;
 import com.dmsg.message.MessageExecutor;
 import com.dmsg.message.MessageHandler;
+import com.dmsg.message.MessageParser;
 import com.dmsg.message.vo.ControllerMessage;
 import com.dmsg.message.vo.MessageType;
 import com.dmsg.message.vo.TextMessage;
@@ -17,6 +18,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
     MessageExecutor executor;
     DmsgServerContext serverContext;
+    MessageParser parser;
 
     public TextWebSocketFrameHandler(){
         serverContext = DmsgServerContext.getServerContext();
@@ -27,7 +29,9 @@ public class TextWebSocketFrameHandler extends SimpleChannelInboundHandler<TextW
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         TextMessage message = new TextMessage(msg.text());
-        executor.execute(new MessageHandler(new MessageContext(serverContext,ctx, message)));
+        MessageContext messageContext = new MessageContext(serverContext, ctx, message);
+        parser.parse(messageContext);
+        executor.execute(new MessageHandler(messageContext));
     }
 
 
