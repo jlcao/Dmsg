@@ -1,13 +1,10 @@
 package com.dmsg.server;
 
 import com.dmsg.exception.ServerConfigException;
-import com.dmsg.utils.NullUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -65,7 +62,23 @@ public class DmsgServerConfig{
     }
 
     public String getServerNodeFlag() {
-        return properties.getProperty("redis.node.key", "dmsg.nodes");
+        return properties.getProperty("cache.node.key", "dmsg.nodes");
     }
 
+    public String getAgentIp() {
+        return properties.getProperty("agent.ip", "");
+    }
+    public String getAgentPort() {
+        return properties.getProperty("agent.port", "");
+    }
+
+    public long getHostRefreshCycle() {
+        String minute = properties.getProperty("node.refresh.cycle", "3");
+
+        return Integer.parseInt(minute) * 1000 * 60;
+    }
+
+    public String getUserNodeFlag() {
+        return properties.getProperty("cache.user.key", "dmsg.usercache");
+    }
 }

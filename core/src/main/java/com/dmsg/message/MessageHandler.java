@@ -25,12 +25,12 @@ import java.util.List;
  */
 public class MessageHandler implements Runnable{
     Logger logger = LoggerFactory.getLogger(MessageHandler.class);
-    MessageContext messageContext;
-    MessageBase message;
+    private MessageContext messageContext;
+    private MessageBase message;
 
-    final List<Filter> filters;
-    LocalChannelManager channelManager;
-    ChannelId channelId;
+    private final List<Filter> filters;
+    private LocalChannelManager channelManager;
+    private ChannelId channelId;
 
 
     public MessageHandler(MessageContext messageContext) {
@@ -42,8 +42,8 @@ public class MessageHandler implements Runnable{
     }
 
     public void run() {
-        System.out.println("收到请求：" + messageContext.getSource().getType());
-        System.out.println("收到请求：" + message.getBody());
+        logger.debug("收到请求：" + messageContext.getSource().getType());
+        logger.debug("收到请求：" + message.getBody());
         try {
             process();
         } catch (AuthenticationException e) {
@@ -59,7 +59,7 @@ public class MessageHandler implements Runnable{
             auth();
         }
         FilterChain chain = getFilterChain();
-        boolean bl = chain != null ? chain.doFilter(messageContext) : true;
+        boolean bl = (chain != null ? chain.doFilter(messageContext) : true);
         if (bl) {
             switch (messageContext.getMessageType()) {
                 case AUTH:
@@ -84,8 +84,6 @@ public class MessageHandler implements Runnable{
      **/
     private RouteMessage routeMessage() {
         RouteHandler routeHandler = RouteHandler.getHandler();
-
-
         return routeHandler.route(messageContext);
     }
 
@@ -98,7 +96,10 @@ public class MessageHandler implements Runnable{
         if (channelManager.isAvailable(message.getReceiver())) {
             send();
         } else {
-            routeMessage();
+            RouteMessage route = routeMessage();
+            if (route == null) {
+
+            }
         }
     }
 
@@ -141,12 +142,11 @@ public class MessageHandler implements Runnable{
     }
 
     public FilterChain getFilterChain() {
+        FilterChain chain = null;
         if (filters != null && !filters.isEmpty()) {
-            FilterChain chain = new Chain(filters);
+            chain = new Chain(filters);
         }
-
-
-        return null;
+        return chain;
     }
 
     private class Chain implements FilterChain{

@@ -1,5 +1,7 @@
 package com.dmsg.channel;
 
+import com.dmsg.data.UserDetail;
+import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 
@@ -24,7 +26,14 @@ public class LocalChannelManager {
     }
 
     // 增加用户与连接的上下文映射
-    public void addContext(String name, ChannelHandlerContext ctx){
+    public void addContext(String name, ChannelHandlerContext ctx) {
+        UserDetail userDetail = new UserDetail();
+        userDetail.setLastTime(System.currentTimeMillis());
+        userDetail.setUserName(name);
+        userDetail.setStatus(1);
+        userDetail.setLoginHost(DmsgServerContext.getServerContext().getHostDetail());
+
+
         synchronized (sessions) {
             sessions.put(name, ctx);
             relations.put(ctx.channel().id(), name);

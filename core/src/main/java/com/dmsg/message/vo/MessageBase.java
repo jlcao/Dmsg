@@ -4,6 +4,7 @@ package com.dmsg.message.vo;
  * Created by cjl on 2016/7/11.
  */
 public abstract class MessageBase {
+    private long messageId;
     private String type;
     private String beFrom;
     private String receiver;
@@ -37,5 +38,13 @@ public abstract class MessageBase {
 
     public void setBeFrom(String beFrom) {
         this.beFrom = beFrom;
+    }
+
+    public long getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 }

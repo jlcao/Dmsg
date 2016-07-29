@@ -1,5 +1,8 @@
 package com.dmsg.cache;
 
+import com.alibaba.fastjson.JSON;
+import com.dmsg.data.UserDetail;
+import com.dmsg.utils.NullUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.Pipeline;
@@ -33,5 +36,11 @@ public class CacheManager {
         }
         piplined.close();
 
+    }
+
+    public UserDetail getUserByName(String key,String userName) {
+        String str = pool.getResource().hget(key, userName);
+        UserDetail detail = NullUtils.isEmpty(str) ? null : JSON.toJavaObject(JSON.parseObject(str), UserDetail.class);
+        return detail;
     }
 }
