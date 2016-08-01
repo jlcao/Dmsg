@@ -27,7 +27,6 @@ public class MessageHandler implements Runnable{
     Logger logger = LoggerFactory.getLogger(MessageHandler.class);
     private MessageContext messageContext;
     private MessageBase message;
-
     private final List<Filter> filters;
     private LocalChannelManager channelManager;
     private ChannelId channelId;
@@ -42,8 +41,8 @@ public class MessageHandler implements Runnable{
     }
 
     public void run() {
-        logger.debug("收到请求：" + messageContext.getSource().getType());
-        logger.debug("收到请求：" + message.getBody());
+        System.out.println("收到请求：" + messageContext.getMessage().getType());
+        System.out.println("收到请求：" + message.getBody());
         try {
             process();
         } catch (AuthenticationException e) {

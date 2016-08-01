@@ -12,6 +12,4 @@ public interface Filter {
     public void destroy();
 
     public void init();
-
-    public int getOffe();
 }

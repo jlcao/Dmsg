@@ -15,15 +15,11 @@ public class DmsgServerConfig{
     private int port;
     private String host;
     public DmsgServerConfig() {
-        super();
         try {
-            properties.load(new FileInputStream("classpath:cfg.properties"));
+            properties.load(new FileInputStream("D:\\E\\git\\Dmsg\\core\\src\\main\\resource\\cfg.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
     }
 
     public void setHost(String host) throws ServerConfigException {

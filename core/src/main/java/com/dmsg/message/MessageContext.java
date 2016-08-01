@@ -18,6 +18,7 @@ public class MessageContext {
 
     public MessageContext(DmsgServerContext serverContext, ChannelHandlerContext channelHandlerContext, MessageBase message) {
         this.channelHandlerContext = channelHandlerContext;
+        this.serverContext = serverContext;
         this.source = message;
     }
 
@@ -59,7 +60,6 @@ public class MessageContext {
     }
 
     public boolean authentication(AuthMessage authMessage) {
-        //serverContext.getAuthentication();
 
 
         return false;

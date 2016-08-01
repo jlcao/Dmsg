@@ -33,7 +33,6 @@ public class LocalChannelManager {
         userDetail.setStatus(1);
         userDetail.setLoginHost(DmsgServerContext.getServerContext().getHostDetail());
 
-
         synchronized (sessions) {
             sessions.put(name, ctx);
             relations.put(ctx.channel().id(), name);
