@@ -1,4 +1,4 @@
-package com.dmsg.netty;
+package com.dmsg.netty.handler;
 
 
 import com.dmsg.message.MessageContext;
@@ -40,7 +40,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         //传统的HTTP接入
         if (msg instanceof FullHttpRequest) {
             handleHttpRequest(ctx, (FullHttpRequest) msg);
-        } else if (msg instanceof WebSocketFrame){
+        } else if (msg instanceof WebSocketFrame) {
             handleWebSocketFrame(ctx, (WebSocketFrame) msg);
         }
     }
@@ -63,8 +63,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
             return;
         }
-        frame.retain();
-        ctx.fireChannelRead(frame);
+        ctx.fireChannelRead(frame.retain());
 
     }
 
@@ -77,7 +76,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_REQUEST));
             return;
         }
-        System.out.println(req.uri());
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(
                 "ws://localhost:8080/websocket", null, false
         );
@@ -111,7 +109,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         if (connection != null && "close".equalsIgnoreCase(connection)) {
             return false;
         }
-
         if (req.protocolVersion().isKeepAliveDefault()) {
             return !"close".equalsIgnoreCase(connection);
         } else {

@@ -7,6 +7,7 @@ import com.dmsg.cache.RedisPoolBuilder;
 import com.dmsg.cache.UserCache;
 import com.dmsg.data.HostDetail;
 import com.dmsg.exception.ServerConfigException;
+import com.dmsg.filter.Filter;
 import com.dmsg.message.MessageExecutor;
 import com.dmsg.netty.NetSocketServer;
 import com.dmsg.netty.initializer.InitializerFactory;
@@ -16,6 +17,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cjl on 2016/7/15.
@@ -27,6 +30,7 @@ public class DmsgServerContext {
     private RedisPoolBuilder redisPoolBuilder;
     private HostDetail hostDetail;
     private CacheManager cache;
+    private List<Filter> filters;
     private HostCache hostCache;
     private UserCache userCache;
     private static DmsgServerContext serverContext;
@@ -38,12 +42,21 @@ public class DmsgServerContext {
         executor = MessageExecutor.getInstance();
         redisPoolBuilder = new RedisPoolBuilder(config.getCacheHost(), config.getCachePort());
         cache = new CacheManager(redisPoolBuilder);
+        filters = new ArrayList<Filter>();
         hostCache = new HostCache(this);
         userCache = new UserCache(this);
     }
 
     private void initConfig() {
         config = new DmsgServerConfig();
+    }
+
+    private void addLastFilter(Filter filter) {
+        filters.add(filter);
+    }
+
+    public List<Filter> getFilters() {
+        return filters;
     }
 
     public void builderNetSocketServer() throws ServerConfigException {
