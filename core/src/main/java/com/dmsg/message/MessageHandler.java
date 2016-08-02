@@ -10,7 +10,7 @@ import com.dmsg.message.vo.MessageBase;
 import com.dmsg.message.vo.MessageType;
 import com.dmsg.message.vo.TextMessage;
 import com.dmsg.route.RouteHandler;
-import com.dmsg.route.RouteMessage;
+import com.dmsg.route.vo.RouteMessage;
 import io.netty.channel.ChannelId;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.apache.commons.lang3.StringUtils;

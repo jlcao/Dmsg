@@ -11,6 +11,7 @@ public enum MessageType {
     TEXT("TEXT","文本"),
     TRANSMIT("TRANSMIT","转发"),
     OSPF("OSPF","透传"),
+    ASK("ASK","消息确认"),
     FILE("FILE", "文件");
 
     private String code;
