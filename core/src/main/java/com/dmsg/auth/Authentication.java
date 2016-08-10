@@ -1,6 +1,6 @@
 package com.dmsg.auth;
 
-import com.dmsg.channel.LocalChannelManager;
+import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.filter.Filter;
 import com.dmsg.filter.FilterChain;
 import com.dmsg.message.MessageContext;
@@ -15,7 +15,7 @@ public class Authentication implements Filter {
         if (MessageType.AUTH.equals(messageContext.getMessageType())) {
             AuthMessage authMessage = (AuthMessage) messageContext.getMessage();
             if ("123".equals(authMessage.getPassword())) {
-                LocalChannelManager.getInstance().addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
+                LocalUserChannelManager.getInstance().addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
             }
         } else {
             chain.doFilter(messageContext);

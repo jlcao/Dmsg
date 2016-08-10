@@ -1,7 +1,7 @@
 package com.dmsg.message;
 
 import com.alibaba.fastjson.JSON;
-import com.dmsg.channel.LocalChannelManager;
+import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.exception.AuthenticationException;
 import com.dmsg.filter.Filter;
 import com.dmsg.filter.FilterChain;
@@ -23,12 +23,14 @@ import java.util.List;
 /**
  * Created by cjl on 2016/7/11.
  */
-public class MessageHandler implements Runnable{
+public class MessageHandler implements Runnable {
     Logger logger = LoggerFactory.getLogger(MessageHandler.class);
     private MessageContext messageContext;
     private MessageBase message;
     private final List<Filter> filters;
-    private LocalChannelManager channelManager;
+    private LocalUserChannelManager channelManager;
+    private MessageSender messageSender;
+    private MessageOfflineHandler messageOfflineHandler;
     private ChannelId channelId;
 
 
@@ -37,7 +39,7 @@ public class MessageHandler implements Runnable{
         message = messageContext.getMessage();
         channelId = messageContext.getChannelHandlerContext().channel().id();
         filters = new ArrayList<Filter>();
-        channelManager = LocalChannelManager.getInstance();
+        channelManager = LocalUserChannelManager.getInstance();
     }
 
     public void run() {
@@ -45,14 +47,14 @@ public class MessageHandler implements Runnable{
         System.out.println("收到请求：" + message.getBody());
         try {
             process();
-        } catch (AuthenticationException e) {
+        } catch (Exception e) {
             messageContext.getChannelHandlerContext().channel().writeAndFlush(new TextWebSocketFrame(e.getMessage().toString()));
         }
 
 
     }
 
-    private void process() throws AuthenticationException {
+    private void process() throws Exception {
         //鉴权
         if (!messageContext.getMessageType().getCode().equals(MessageType.AUTH.getCode())) {
             auth();
@@ -76,12 +78,12 @@ public class MessageHandler implements Runnable{
 
     /**
      * 1.获取用户所在主机
-         路由策略
-             1.1 广播-缓存策略 广播到其它主机-存在该用户的主机响应-缓存该用户所在的主机在本地缓存(需要设置本地缓存失效时间)。
-             1.2 注册-缓存策略 每个用户鉴权时将用户信息注册到共享缓存服务器-查找到用户主机时缓存到本地缓存(需要设置本地缓存失效时间)。
+     * 路由策略
+     * 1.1 广播-缓存策略 广播到其它主机-存在该用户的主机响应-缓存该用户所在的主机在本地缓存(需要设置本地缓存失效时间)。
+     * 1.2 注册-缓存策略 每个用户鉴权时将用户信息注册到共享缓存服务器-查找到用户主机时缓存到本地缓存(需要设置本地缓存失效时间)。
      * 2.如果没有任何主机响应(1.1策略)或存在(1.2策略),则离线缓存消息,定时任务处理
      **/
-    private RouteMessage routeMessage() {
+    private RouteMessage routeMessage() throws Exception {
         RouteHandler routeHandler = RouteHandler.getHandler();
         return routeHandler.route(messageContext);
     }
@@ -90,14 +92,18 @@ public class MessageHandler implements Runnable{
         channelManager.removeContext(message.getBeFrom());
     }
 
-    private void processText() {
+    private void processText() throws Exception {
         //判断接收用户是否在本地登陆
         if (channelManager.isAvailable(message.getReceiver())) {
             send();
         } else {
             RouteMessage route = routeMessage();
-            if (route == null) {
-
+            if (route != null) {
+                //发送消息
+                messageSender.send(route);
+            } else {
+                //离线缓存消息
+                messageOfflineHandler.offlineMessage(message);
             }
         }
     }
@@ -123,12 +129,11 @@ public class MessageHandler implements Runnable{
         }
 
 
-
-
     }
 
     /**
      * 判断用户鉴权信息
+     *
      * @throws AuthenticationException
      */
     private void auth() throws AuthenticationException {
@@ -148,9 +153,9 @@ public class MessageHandler implements Runnable{
         return chain;
     }
 
-    private class Chain implements FilterChain{
+    private class Chain implements FilterChain {
         final List<Filter> filters;
-        int _filter= 0;
+        int _filter = 0;
 
         private Chain(List<Filter> filters) {
             this.filters = filters;

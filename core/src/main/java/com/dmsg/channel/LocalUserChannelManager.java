@@ -13,15 +13,15 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by cjl on 2016/7/11.
  */
-public class LocalChannelManager {
+public class LocalUserChannelManager {
     // 存储用户名与连接上下文对象的映射
     final private Map<String, ChannelHandlerContext> sessions = new ConcurrentHashMap<String, ChannelHandlerContext>();
     // 存储连接上下文与用户名的映射
     final private Map<ChannelId, String> relations = new ConcurrentHashMap<ChannelId, String>();
 
-    private static LocalChannelManager instance = new LocalChannelManager();
+    private static LocalUserChannelManager instance = new LocalUserChannelManager();
 
-    public static LocalChannelManager getInstance(){
+    public static LocalUserChannelManager getInstance(){
         return instance;
     }
 

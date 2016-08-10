@@ -28,7 +28,7 @@ public abstract class RouteHandler {
      * @return
      */
 
-    public abstract RouteMessage route(MessageContext messageContext);
+    public abstract RouteMessage route(MessageContext messageContext) throws Exception;
 
 
 

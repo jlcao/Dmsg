@@ -43,4 +43,5 @@ public class CacheManager {
         UserDetail detail = NullUtils.isEmpty(str) ? null : JSON.toJavaObject(JSON.parseObject(str), UserDetail.class);
         return detail;
     }
+
 }

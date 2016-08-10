@@ -15,6 +15,7 @@
     }
     if (window.WebSocket) {
         socket = new WebSocket("ws://localhost:8080/websocket?key=34523121234");
+
         socket.onmessage = function (event) {
             var ta = document.getElementById('responseText');
             ta.value = "";
