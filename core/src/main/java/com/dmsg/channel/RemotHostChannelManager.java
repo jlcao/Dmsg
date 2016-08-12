@@ -11,13 +11,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by cjl on 2016/7/11.
+ * Created by cjl on 2016/8/11.
  */
-public class LocalUserChannelManager {
+public class RemotHostChannelManager {
     final private Map<String, ChannelHandlerContext> sessions = new ConcurrentHashMap<String, ChannelHandlerContext>();
     final private Map<ChannelId, String> relations = new ConcurrentHashMap<ChannelId, String>();
-    private static LocalUserChannelManager instance = new LocalUserChannelManager();
-    public static LocalUserChannelManager getInstance(){
+    private static RemotHostChannelManager instance = new RemotHostChannelManager();
+    public static RemotHostChannelManager getInstance(){
         return instance;
     }
 
@@ -35,32 +35,26 @@ public class LocalUserChannelManager {
         }
     }
 
-    // 获取指定用户的连接上下文
     public ChannelHandlerContext getContext(String name){
         return sessions.get(name);
     }
 
-    // 根据用户名删除session
     public void removeContext(String name){
         sessions.remove(name);
     }
 
-    // 判断指定的用户名当前是否在线
     public boolean isAvailable(String name){
         return sessions.containsKey(name) && (sessions.get(name) != null);
     }
 
-    // 获取所有的用户名
     public synchronized Set<String> getAll(){
         return sessions.keySet();
     }
 
-    // 获取所有连接的上下文对象
     public synchronized Collection<ChannelHandlerContext> getAllClient(){
         return sessions.values();
     }
 
-    // 根据上下文删除用户session
     public void removeContext(ChannelHandlerContext ctx){
         String name = relations.get(ctx.toString());
         if(name != null){
@@ -69,7 +63,6 @@ public class LocalUserChannelManager {
         }
     }
 
-    // 统计当前在线人数
     public int staticClients(){
         return relations.size();
     }

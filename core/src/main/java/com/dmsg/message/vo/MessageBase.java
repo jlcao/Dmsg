@@ -3,48 +3,61 @@ package com.dmsg.message.vo;
 /**
  * Created by cjl on 2016/7/11.
  */
-public abstract class MessageBase {
-    private long messageId;
-    private String type;
-    private String beFrom;
-    private String receiver;
+public class MessageBase {
 
+    private Header header;
+    private MessageBody body;
+    //源地址
+    private SourceAddress from;
+    //目的地
+    private SourceAddress to;
 
-    public MessageBase(String type) {
-        this.type = type;
+    public MessageBase() {
     }
 
-    public String getType() {
-        return type;
+
+    public MessageBase(MessageBody body) {
+        this.body = body;
     }
 
-    public String getReceiver() {
-        return receiver;
+    public MessageBase(Header header, MessageBody body) {
+        this.header = header;
+        this.body = body;
     }
 
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
+    public MessageBase(Header header) {
+        this.header = header;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public Header getHeader() {
+        return header;
     }
 
-    public abstract Object getBody();
-
-    public String getBeFrom() {
-        return beFrom;
+    public void setHeader(Header header) {
+        this.header = header;
     }
 
-    public void setBeFrom(String beFrom) {
-        this.beFrom = beFrom;
+    public MessageBody getBody() {
+        return body;
     }
 
-    public long getMessageId() {
-        return messageId;
+    public void setBody(MessageBody body) {
+        this.body = body;
     }
 
-    public void setMessageId(long messageId) {
-        this.messageId = messageId;
+    public SourceAddress getFrom() {
+        return from;
+    }
+
+    public void setFrom(SourceAddress from) {
+        this.from = from;
+    }
+
+    public SourceAddress getTo() {
+        return to;
+    }
+
+    public void setTo(SourceAddress to) {
+        this.to = to;
     }
 }

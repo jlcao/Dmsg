@@ -4,31 +4,22 @@ package com.dmsg.message.vo;
  * Created by cjl on 2016/7/11.
  */
 public enum MessageType {
-    AUTH("AUTH","鉴权"),
-    CONTROLLER("CONTROLLER", "控制"),
-    SHAKE("SHAKE", "抖动"),
-    CONTROLLER_CLOSE("CONTROLLER_CLOSE", "关闭链接"),
-    TEXT("TEXT","文本"),
-    TRANSMIT("TRANSMIT","转发"),
-    OSPF("OSPF","透传"),
-    ASK("ASK","消息确认"),
-    FILE("FILE", "文件");
+    AUTH_REQ(1,"鉴权请求"),
+    AUTH_RES(2, "鉴权响应"),
+    SEND_TEXT(3, "消息透传"),
+    SAVE_TEXT(4, "存储（&转发）消息"),
+    MSG_ACK(5,"消息回执确认"),
+    CLOSE(6,"关闭连接");
 
-    private String code;
+    private int val;
     private String desc;
 
-    MessageType(String code, String desc) {
-        this.code = code;
+    MessageType(int val, String desc) {
+        this.val = val;
         this.desc = desc;
     }
 
-    public String getCode() {
-        return code;
-    }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
 
     public String getDesc() {
         return desc;
@@ -38,9 +29,17 @@ public enum MessageType {
         this.desc = desc;
     }
 
-    public static MessageType forCode(String type) {
+    public int getVal() {
+        return val;
+    }
+
+    public void setVal(int val) {
+        this.val = val;
+    }
+
+    public static MessageType getByVal(int msgType) {
         for (MessageType tmp : MessageType.values()) {
-            if (tmp.getCode().equals(type)) {
+            if (tmp.getVal() == msgType) {
                 return tmp;
             }
         }

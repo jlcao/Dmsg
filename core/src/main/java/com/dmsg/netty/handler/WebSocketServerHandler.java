@@ -1,11 +1,7 @@
 package com.dmsg.netty.handler;
 
 
-import com.dmsg.message.MessageContext;
 import com.dmsg.message.MessageExecutor;
-import com.dmsg.message.MessageHandler;
-import com.dmsg.message.vo.ControllerMessage;
-import com.dmsg.message.vo.MessageType;
 import com.dmsg.server.DmsgServerContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -54,8 +50,6 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         //判断是否是关闭链路的指令
         if (frame instanceof CloseWebSocketFrame) {
             handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame.retain());
-            ControllerMessage controllerMessage = new ControllerMessage(MessageType.CONTROLLER_CLOSE.getCode());
-            executor.execute(new MessageHandler(new MessageContext(serverContext, ctx, controllerMessage)));
             return;
         }
         //判断是否是Ping消息

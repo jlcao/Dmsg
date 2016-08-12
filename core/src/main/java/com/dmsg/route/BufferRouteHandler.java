@@ -37,7 +37,7 @@ public class BufferRouteHandler extends RouteHandler {
         }
         routeMessage.setMessage(message);
         //通过三方缓存获取用户相关信息
-        UserDetail userDetail = cacheManager.getUserByName(config.getUserNodeFlag(), message.getReceiver());
+        UserDetail userDetail = cacheManager.getUserByName(config.getUserNodeFlag(), message.getTo().getUser());
         if (userDetail != null) {
             List<HostDetail> hosts = new ArrayList<HostDetail>();
             hosts.add(userDetail.getLoginHost());

@@ -1,6 +1,6 @@
 package com.dmsg.message;
 
-import com.dmsg.message.vo.AuthMessage;
+import com.dmsg.message.vo.AuthReqMessage;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.message.vo.MessageType;
 import com.dmsg.server.DmsgServerContext;
@@ -12,14 +12,15 @@ import io.netty.channel.ChannelHandlerContext;
 public class MessageContext {
     private ChannelHandlerContext channelHandlerContext;
     private DmsgServerContext serverContext;
-    private MessageBase source;
+    private String source;
     private MessageBase message;
     private MessageType messageType;
+    private String befrom;
 
-    public MessageContext(DmsgServerContext serverContext, ChannelHandlerContext channelHandlerContext, MessageBase message) {
-        this.channelHandlerContext = channelHandlerContext;
+    public MessageContext(DmsgServerContext serverContext, ChannelHandlerContext ctx, String text) {
+        this.channelHandlerContext = ctx;
         this.serverContext = serverContext;
-        this.source = message;
+        this.source = text;
     }
 
     public ChannelHandlerContext getChannelHandlerContext() {
@@ -43,11 +44,11 @@ public class MessageContext {
         this.message = message;
     }
 
-    public MessageBase getSource() {
+    public String getSource() {
         return source;
     }
 
-    public void setSource(MessageBase source) {
+    public void setSource(String source) {
         this.source = source;
     }
 
@@ -59,9 +60,17 @@ public class MessageContext {
         return messageType;
     }
 
-    public boolean authentication(AuthMessage authMessage) {
+    public boolean authentication(AuthReqMessage authMessage) {
 
 
         return false;
+    }
+
+    public void setBefrom(String befrom) {
+        this.befrom = befrom;
+    }
+
+    public String getBefrom() {
+        return befrom;
     }
 }

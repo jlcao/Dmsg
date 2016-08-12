@@ -3,13 +3,11 @@ package com.dmsg.message.vo;
 /**
  * Created by cjl on 2016/7/11.
  */
-public class AuthMessage extends MessageBase {
+public class AuthReqMessage extends MessageBody {
+
     private String username;
     private String password;
 
-    public AuthMessage() {
-        super(MessageType.AUTH.getCode());
-    }
 
     public String getUsername() {
         return username;
@@ -27,16 +25,4 @@ public class AuthMessage extends MessageBase {
         this.password = password;
     }
 
-    @Override
-    public Object getBody() {
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "AuthMessage{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
 }

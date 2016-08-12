@@ -4,9 +4,6 @@ import com.dmsg.message.MessageContext;
 import com.dmsg.message.MessageExecutor;
 import com.dmsg.message.MessageHandler;
 import com.dmsg.message.MessageParser;
-import com.dmsg.message.vo.ControllerMessage;
-import com.dmsg.message.vo.MessageType;
-import com.dmsg.message.vo.TextMessage;
 import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -29,20 +26,16 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
-        TextMessage message = new TextMessage(msg.text());
-        MessageContext messageContext = new MessageContext(serverContext, ctx, message);
+        MessageContext messageContext = new MessageContext(serverContext, ctx, msg.text());
         parser.parse(messageContext);
         executor.execute(new MessageHandler(messageContext));
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        ControllerMessage controllerMessage = new ControllerMessage(MessageType.CONTROLLER_CLOSE.getCode());
-        MessageContext messageContext = new MessageContext(serverContext, ctx, controllerMessage);
+        MessageContext messageContext = new MessageContext(serverContext, ctx, "{header:{msgType:10},body:{}}");
         parser.parse(messageContext);
         executor.execute(new MessageHandler(messageContext));
-        System.out.println("handlerRemoved");
-        super.handlerRemoved(ctx);
     }
 
     @Override

@@ -3,28 +3,26 @@ package com.dmsg.message.vo;
 /**
  * Created by cjl on 2016/7/11.
  */
-public class TextMessage extends MessageBase {
+public class TextMessage extends MessageBody {
 
-    private String text;
+    private String content;
+
+    private String receiver;
 
 
-    public TextMessage(String text) {
-        super(MessageType.TEXT.getCode());
-        this.text = text;
+    public String getContent() {
+        return content;
     }
 
-    @Override
-    public Object getBody() {
-        return this;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-
-
-    public String getText() {
-        return text;
+    public String getReceiver() {
+        return receiver;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
     }
 }

@@ -5,7 +5,7 @@ import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.exception.AuthenticationException;
 import com.dmsg.filter.Filter;
 import com.dmsg.filter.FilterChain;
-import com.dmsg.message.vo.AuthMessage;
+import com.dmsg.message.vo.AuthReqMessage;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.message.vo.MessageType;
 import com.dmsg.message.vo.TextMessage;
@@ -24,10 +24,10 @@ import java.util.List;
  * Created by cjl on 2016/7/11.
  */
 public class MessageHandler implements Runnable {
+    private final List<Filter> filters;
     Logger logger = LoggerFactory.getLogger(MessageHandler.class);
     private MessageContext messageContext;
     private MessageBase message;
-    private final List<Filter> filters;
     private LocalUserChannelManager channelManager;
     private MessageSender messageSender;
     private MessageOfflineHandler messageOfflineHandler;
@@ -43,8 +43,6 @@ public class MessageHandler implements Runnable {
     }
 
     public void run() {
-        System.out.println("收到请求：" + messageContext.getMessage().getType());
-        System.out.println("收到请求：" + message.getBody());
         try {
             process();
         } catch (Exception e) {
@@ -56,20 +54,23 @@ public class MessageHandler implements Runnable {
 
     private void process() throws Exception {
         //鉴权
-        if (!messageContext.getMessageType().getCode().equals(MessageType.AUTH.getCode())) {
+        if (!messageContext.getMessageType().equals(MessageType.AUTH_REQ)) {
             auth();
         }
         FilterChain chain = getFilterChain();
         boolean bl = (chain != null ? chain.doFilter(messageContext) : true);
         if (bl) {
             switch (messageContext.getMessageType()) {
-                case AUTH:
+                case AUTH_REQ:
                     processAuth();
                     break;
-                case TEXT:
+                case SEND_TEXT:
                     processText();
                     break;
-                case CONTROLLER_CLOSE:
+                case SAVE_TEXT:
+                    processText();
+                    break;
+                case CLOSE:
                     processClose();
                     break;
             }
@@ -89,27 +90,23 @@ public class MessageHandler implements Runnable {
     }
 
     private void processClose() {
-        channelManager.removeContext(message.getBeFrom());
+        channelManager.removeContext(messageContext.getChannelHandlerContext());
     }
 
     private void processText() throws Exception {
-        //判断接收用户是否在本地登陆
-        if (channelManager.isAvailable(message.getReceiver())) {
-            send();
+        RouteMessage route = routeMessage();
+        if (route != null) {
+            //发送消息
+            messageSender.send(route);
         } else {
-            RouteMessage route = routeMessage();
-            if (route != null) {
-                //发送消息
-                messageSender.send(route);
-            } else {
-                //离线缓存消息
-                messageOfflineHandler.offlineMessage(message);
-            }
+            //离线缓存消息
+            messageOfflineHandler.offlineMessage(message);
         }
+
     }
 
     private void send() {
-        TextMessage textMessage = (TextMessage) message;
+        TextMessage textMessage = (TextMessage) message.getBody();
         channelManager.getContext(textMessage.getReceiver()).channel().writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(textMessage)));
     }
 
@@ -119,7 +116,7 @@ public class MessageHandler implements Runnable {
      */
 
     private void processAuth() {
-        AuthMessage authMessage = (AuthMessage) message;
+        AuthReqMessage authMessage = (AuthReqMessage) message.getBody();
         if (messageContext.authentication(authMessage)) {
             channelManager.addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
             System.out.println("登录成功" + authMessage);
@@ -139,7 +136,7 @@ public class MessageHandler implements Runnable {
     private void auth() throws AuthenticationException {
         String username = channelManager.findUserByChannelId(channelId);
         if (StringUtils.isNotEmpty(username)) {
-            message.setBeFrom(username);
+            messageContext.setBefrom(username);
         } else {
             throw new AuthenticationException("用户还没有鉴权！");
         }
@@ -156,18 +153,15 @@ public class MessageHandler implements Runnable {
     private class Chain implements FilterChain {
         final List<Filter> filters;
         int _filter = 0;
-
         private Chain(List<Filter> filters) {
             this.filters = filters;
         }
-
         public boolean doFilter(MessageContext messageContext) {
             boolean bl = true;
             if (_filter < filters.size()) {
                 Filter filter = filters.get(_filter++);
                 filter.doFilter(messageContext, this);
             }
-
             if (_filter < filters.size()) {
                 bl = false;
             }

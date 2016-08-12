@@ -8,82 +8,47 @@ import com.dmsg.message.vo.*;
  * Created by cjl on 2016/7/12.
  */
 public class MessageParser {
-    public static final String KEY_FIELD_USERNAME = "username";
-    public static final String KEY_FIELD_PASSWORD = "password";
-    public static final String KEY_FIELD_TYPE = "type";
-    public static final String KEY_FIELD_RECEIVER = "receiver";
-    public static final String KEY_FIELD_TEXT = "text";
-
+    public static final String HEADER = "header";
+    public static final String BODY = "body";
 
     public void parse(MessageContext messageContext) {
-        MessageBase source = messageContext.getSource();
-        MessageType type = MessageType.forCode(source.getType());
-        MessageBase message = parse(source,type);
+        String source = messageContext.getSource();
+        MessageBase message = parse(source);
         messageContext.setMessage(message);
-        messageContext.setMessageType(MessageType.forCode(message.getType()));
+        messageContext.setMessageType(MessageType.getByVal(message.getHeader().getMsgType()));
 
     }
 
-    private MessageBase parse(MessageBase message,MessageType type) {
-        MessageBase result = null;
+    private MessageBase parse(String source) {
+        JSONObject data = JSON.parseObject(source);
+        Header header = data.getObject(HEADER, Header.class);
+        MessageType type = MessageType.getByVal(header.getMsgType());
+        MessageBase result = new MessageBase(header);
+        MessageBody body = null;
         switch (type) {
-            case AUTH:
-            case SHAKE:
-            case TEXT:
-                result = parseText((TextMessage) message);
+            case AUTH_REQ:
+                body = data.getObject(BODY, AuthReqMessage.class);
                 break;
-            case FILE:
-                result = parseFile((FileMessage) message);
+            case AUTH_RES:
+                body = data.getObject(BODY, AuthResMessage.class);
                 break;
-            case CONTROLLER_CLOSE:
-                result = parseController((ControllerMessage) message);
+            case SEND_TEXT:
+                body = data.getObject(BODY, TextMessage.class);
+                break;
+            case SAVE_TEXT:
+                body = data.getObject(BODY, TextMessage.class);
+                break;
+            case MSG_ACK:
+                body = data.getObject(BODY, AskMessage.class);
+                break;
+            case CLOSE:
+                body = data.getObject(BODY, ConnectionCloseMessage.class);
                 break;
         }
+        result.setBody(body);
         return result;
     }
 
-    private ControllerMessage parseController(ControllerMessage message) {
-        return message;
-    }
-
-    private FileMessage parseFile(FileMessage message) {
-        return message;
-    }
-
-    private MessageBase parseText(TextMessage message) {
-        String content = message.getText();
-        JSONObject jsonObject = JSON.parseObject(content);
-        MessageBase messageBase = null;
-        MessageType type = MessageType.forCode(jsonObject.getString(KEY_FIELD_TYPE));
-
-        switch (type) {
-            case AUTH:
-                messageBase = parseAuth(jsonObject);
-                break;
-            case TEXT:
-                messageBase = parseMessageText(jsonObject);
-                break;
-            case SHAKE:
-                break;
-        }
-
-
-        return messageBase;
-    }
-
-    private MessageBase parseMessageText(JSONObject jsonObject) {
-        TextMessage textMessage = new TextMessage("");
-        textMessage.setReceiver(jsonObject.getString(KEY_FIELD_RECEIVER));
-        textMessage.setText(jsonObject.getString(KEY_FIELD_TEXT));
-        return textMessage;
-    }
-
-    private MessageBase parseAuth(JSONObject jsonObject) {
-        AuthMessage authMessage = new AuthMessage();
-        authMessage.setUsername(jsonObject.getString(KEY_FIELD_USERNAME));
-        authMessage.setPassword(jsonObject.getString(KEY_FIELD_PASSWORD));
-        return authMessage;
-    }
 
 
 }

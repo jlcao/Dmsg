@@ -4,7 +4,7 @@ import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.filter.Filter;
 import com.dmsg.filter.FilterChain;
 import com.dmsg.message.MessageContext;
-import com.dmsg.message.vo.AuthMessage;
+import com.dmsg.message.vo.AuthReqMessage;
 import com.dmsg.message.vo.MessageType;
 
 /**
@@ -13,7 +13,7 @@ import com.dmsg.message.vo.MessageType;
 public class Authentication implements Filter {
     public void doFilter(MessageContext messageContext, FilterChain chain) {
         if (MessageType.AUTH.equals(messageContext.getMessageType())) {
-            AuthMessage authMessage = (AuthMessage) messageContext.getMessage();
+            AuthReqMessage authMessage = (AuthReqMessage) messageContext.getMessage();
             if ("123".equals(authMessage.getPassword())) {
                 LocalUserChannelManager.getInstance().addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
             }
