@@ -16,7 +16,6 @@ public class MessageParser {
         MessageBase message = parse(source);
         messageContext.setMessage(message);
         messageContext.setMessageType(MessageType.getByVal(message.getHeader().getMsgType()));
-
     }
 
     private MessageBase parse(String source) {

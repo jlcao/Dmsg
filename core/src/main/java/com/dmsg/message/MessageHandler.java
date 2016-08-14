@@ -58,23 +58,7 @@ public class MessageHandler implements Runnable {
             auth();
         }
         FilterChain chain = getFilterChain();
-        boolean bl = (chain != null ? chain.doFilter(messageContext) : true);
-        if (bl) {
-            switch (messageContext.getMessageType()) {
-                case AUTH_REQ:
-                    processAuth();
-                    break;
-                case SEND_TEXT:
-                    processText();
-                    break;
-                case SAVE_TEXT:
-                    processText();
-                    break;
-                case CLOSE:
-                    processClose();
-                    break;
-            }
-        }
+        chain.doFilter(messageContext);
     }
 
     /**
@@ -119,7 +103,6 @@ public class MessageHandler implements Runnable {
         AuthReqMessage authMessage = (AuthReqMessage) message.getBody();
         if (messageContext.authentication(authMessage)) {
             channelManager.addContext(authMessage.getUsername(), messageContext.getChannelHandlerContext());
-            System.out.println("登录成功" + authMessage);
             messageContext.getChannelHandlerContext().channel().writeAndFlush(new TextWebSocketFrame("登陆成功"));
         } else {
 
@@ -160,13 +143,32 @@ public class MessageHandler implements Runnable {
             boolean bl = true;
             if (_filter < filters.size()) {
                 Filter filter = filters.get(_filter++);
-                filter.doFilter(messageContext, this);
+
+                if (messageTypeCheck(filter, messageContext)){
+                    filter.doFilter(messageContext, this);
+                } else{
+                    this.doFilter(messageContext);
+                }
             }
+
             if (_filter < filters.size()) {
                 bl = false;
             }
             return bl;
         }
+
+        private boolean messageTypeCheck(Filter filter, MessageContext messageContext) {
+            List<MessageType> types = filter.attentionTypes();
+            if (types == null || types.isEmpty()) {
+                return true;
+            }
+            if (types.contains(messageContext.getMessageType())) {
+                return true;
+            }
+            return false;
+        }
+
+
     }
 
 }

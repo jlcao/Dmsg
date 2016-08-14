@@ -9,7 +9,7 @@ public enum MessageType {
     SEND_TEXT(3, "消息透传"),
     SAVE_TEXT(4, "存储（&转发）消息"),
     MSG_ACK(5,"消息回执确认"),
-    CLOSE(6,"关闭连接");
+    CLOSE(10,"关闭连接");
 
     private int val;
     private String desc;

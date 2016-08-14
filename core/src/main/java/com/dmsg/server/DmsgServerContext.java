@@ -9,6 +9,7 @@ import com.dmsg.data.HostDetail;
 import com.dmsg.exception.ServerConfigException;
 import com.dmsg.filter.Filter;
 import com.dmsg.message.MessageExecutor;
+import com.dmsg.message.vo.MessageType;
 import com.dmsg.netty.NetSocketServer;
 import com.dmsg.netty.initializer.InitializerFactory;
 import com.dmsg.utils.NullUtils;
@@ -88,6 +89,10 @@ public class DmsgServerContext {
             }
         }
         netSocketServer.run();
+        RouteFilter routeFilter = new RouteFilter();
+        routeFilter.appendAttentionType(MessageType.SAVE_TEXT);
+        routeFilter.appendAttentionType(MessageType.SAVE_TEXT);
+        this.addLastFilter(routeFilter);
         try {
             saveNode();
         } catch (UnknownHostException e) {

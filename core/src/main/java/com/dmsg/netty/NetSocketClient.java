@@ -1,6 +1,6 @@
 package com.dmsg.netty;
 
-import com.dmsg.netty.handler.ClientContextHandler;
+import com.dmsg.netty.handler.ServerContextHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -57,7 +57,7 @@ public class NetSocketClient {
                         pipeline.addLast(new ChunkedWriteHandler());
                         pipeline.addLast(clientProtocolHandler);
                         pipeline.addLast(new IdleStateHandler(10, 120, 0));
-                        pipeline.addLast(new ClientContextHandler());
+                        pipeline.addLast(new ServerContextHandler());
                     }
                 });
     }
