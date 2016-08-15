@@ -5,13 +5,19 @@ import com.dmsg.cache.CacheManager;
 import com.dmsg.cache.HostCache;
 import com.dmsg.cache.RedisPoolBuilder;
 import com.dmsg.cache.UserCache;
+import com.dmsg.channel.LocalUserChannelManager;
+import com.dmsg.channel.RemotHostChannelManager;
 import com.dmsg.data.HostDetail;
 import com.dmsg.exception.ServerConfigException;
 import com.dmsg.filter.Filter;
 import com.dmsg.message.MessageExecutor;
+import com.dmsg.message.MessageSender;
 import com.dmsg.message.vo.MessageType;
 import com.dmsg.netty.NetSocketServer;
 import com.dmsg.netty.initializer.InitializerFactory;
+import com.dmsg.route.BufferRouteHandler;
+import com.dmsg.route.RouteFilter;
+import com.dmsg.route.RouteHandler;
 import com.dmsg.utils.NullUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -37,12 +43,18 @@ public class DmsgServerContext {
     private static DmsgServerContext serverContext;
     private NetSocketServer netSocketServer;
     private DmsgServerConfig config;
+    private RouteHandler routeHander;
+    private MessageSender sender;
+    private RemotHostChannelManager remotChannelHosts;
+    private LocalUserChannelManager userChannelManager;
 
     private DmsgServerContext() {
         initConfig();
         executor = MessageExecutor.getInstance();
         redisPoolBuilder = new RedisPoolBuilder(config.getCacheHost(), config.getCachePort());
         cache = new CacheManager(redisPoolBuilder);
+        remotChannelHosts = RemotHostChannelManager.getInstance();
+        userChannelManager = LocalUserChannelManager.getInstance();
         filters = new ArrayList<Filter>();
         hostCache = new HostCache(this);
         userCache = new UserCache(this);
@@ -138,5 +150,44 @@ public class DmsgServerContext {
 
     public CacheManager getCache() {
         return cache;
+    }
+
+    public RouteHandler getRouteHandler() {
+        if (routeHander == null) {
+            routeHander = new BufferRouteHandler(this);
+        }
+
+        return routeHander;
+    }
+
+    public UserCache getUserCache() {
+        if (userCache == null) {
+            userCache = new UserCache(this);
+        }
+        return userCache;
+    }
+
+
+
+    public HostCache getHostCache() {
+        if (hostCache == null) {
+            hostCache = new HostCache(this);
+        }
+        return hostCache;
+    }
+
+    public MessageSender getSender() {
+        if (sender == null) {
+            sender = new MessageSender(this);
+        }
+        return sender;
+    }
+
+    public RemotHostChannelManager getRemotHostsChannelManager() {
+        return remotChannelHosts;
+    }
+
+    public LocalUserChannelManager getUserChannelManager() {
+        return userChannelManager;
     }
 }

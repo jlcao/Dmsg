@@ -16,22 +16,24 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LocalUserChannelManager {
     final private Map<String, ChannelHandlerContext> sessions = new ConcurrentHashMap<String, ChannelHandlerContext>();
     final private Map<ChannelId, String> relations = new ConcurrentHashMap<ChannelId, String>();
+    final private Map<String, String> auths = new ConcurrentHashMap<String, String>();
     private static LocalUserChannelManager instance = new LocalUserChannelManager();
     public static LocalUserChannelManager getInstance(){
         return instance;
     }
 
     // 增加用户与连接的上下文映射
-    public void addContext(String name, ChannelHandlerContext ctx) {
+    public void addContext(String username,String authKey, ChannelHandlerContext ctx) {
         UserDetail userDetail = new UserDetail();
         userDetail.setLastTime(System.currentTimeMillis());
-        userDetail.setUserName(name);
+        userDetail.setUserName(username);
         userDetail.setStatus(1);
         userDetail.setLoginHost(DmsgServerContext.getServerContext().getHostDetail());
 
         synchronized (sessions) {
-            sessions.put(name, ctx);
-            relations.put(ctx.channel().id(), name);
+            sessions.put(username, ctx);
+            relations.put(ctx.channel().id(), username);
+            auths.put(username, authKey);
         }
     }
 
@@ -48,6 +50,10 @@ public class LocalUserChannelManager {
     // 判断指定的用户名当前是否在线
     public boolean isAvailable(String name){
         return sessions.containsKey(name) && (sessions.get(name) != null);
+    }
+
+    public String getAuthKeyByUsername(String username) {
+        return auths.get(username);
     }
 
     // 获取所有的用户名

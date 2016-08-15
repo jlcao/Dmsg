@@ -3,7 +3,7 @@ package com.dmsg.message.vo;
 /**
  * Created by cjl on 2016/8/12.
  */
-public class SourceAddress {
+public class SourceAddress implements Cloneable  {
     private String host;
     private int port;
     private String user;
@@ -30,5 +30,16 @@ public class SourceAddress {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    @Override
+    public SourceAddress clone() {
+        try {
+            return (SourceAddress) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return this;
+        }
+
     }
 }

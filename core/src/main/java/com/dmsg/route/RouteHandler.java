@@ -1,7 +1,6 @@
 package com.dmsg.route;
 
 import com.dmsg.message.MessageContext;
-import com.dmsg.route.vo.RouteMessage;
 
 /**
  * Created by cjl on 2016/7/27.
@@ -28,7 +27,7 @@ public abstract class RouteHandler {
      * @return
      */
 
-    public abstract RouteMessage route(MessageContext messageContext) throws Exception;
+    public abstract void route(MessageContext messageContext) throws Exception;
 
 
 

@@ -25,4 +25,5 @@ public class AuthReqMessage extends MessageBody {
         this.password = password;
     }
 
+
 }

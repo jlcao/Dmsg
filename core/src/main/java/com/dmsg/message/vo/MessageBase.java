@@ -1,5 +1,7 @@
 package com.dmsg.message.vo;
 
+import com.dmsg.data.HostDetail;
+
 /**
  * Created by cjl on 2016/7/11.
  */
@@ -10,11 +12,20 @@ public class MessageBase {
     //源地址
     private SourceAddress from;
     //目的地
-    private SourceAddress to;
+    private DestAddress to;
 
     public MessageBase() {
     }
 
+    @Override
+    public MessageBase clone() {
+        try {
+            return (MessageBase)super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return this;
+        }
+    }
 
     public MessageBase(MessageBody body) {
         this.body = body;
@@ -53,11 +64,27 @@ public class MessageBase {
         this.from = from;
     }
 
-    public SourceAddress getTo() {
+    public DestAddress getTo() {
         return to;
     }
 
-    public void setTo(SourceAddress to) {
+    public void setTo(DestAddress to) {
         this.to = to;
+    }
+
+    public static MessageBase createAuthReq(AuthResMessage b,HostDetail local) {
+        MessageBase messageBase = new MessageBase();
+
+        SourceAddress sourceAddress = new SourceAddress();
+        sourceAddress.setHost(local.getIp());
+        sourceAddress.setPort(local.getPort());
+        Header header = new Header();
+        header.setMsgType(MessageType.AUTH_RES.getVal());
+
+        messageBase.setBody(b);
+        messageBase.setFrom(new SourceAddress());
+        messageBase.setHeader(header);
+
+        return messageBase;
     }
 }

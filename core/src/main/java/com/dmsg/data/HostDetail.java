@@ -11,6 +11,8 @@ public class HostDetail{
     private long userSize;
     private long msgSize;
 
+
+
     public String getIp() {
         return ip;
     }
@@ -57,6 +59,10 @@ public class HostDetail{
 
     public void setMsgSize(long msgSize) {
         this.msgSize = msgSize;
+    }
+
+    public String keyFiled() {
+        return this.getIp() + ":" + this.getPort();
     }
 
 

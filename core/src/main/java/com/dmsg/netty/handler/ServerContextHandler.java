@@ -50,7 +50,7 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
         if (evt.equals(WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE)) {
             System.out.println("握手完成");
             System.out.println("鉴权");
-            ctx.writeAndFlush(new TextWebSocketFrame("{type:\"AUTH\",username:\"127.0.0.1:8080\",password:\"123\"}"));
+            ctx.writeAndFlush(new TextWebSocketFrame("{type:\"AUTH\",username:\"host:127.0.0.1:8080\",password:\"123\"}"));
         }
     }
 }

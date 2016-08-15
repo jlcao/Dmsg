@@ -4,14 +4,15 @@ import com.dmsg.data.HostDetail;
 import com.dmsg.data.UserDetail;
 import com.dmsg.message.vo.MessageBase;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by cjl on 2016/7/27.
  */
 public class RouteMessage {
     private MessageBase message;
-    private List<HostDetail> hostDetails;
+    private Set<HostDetail> hostDetails;
     private UserDetail user;
 
     public MessageBase getMessage() {
@@ -30,11 +31,18 @@ public class RouteMessage {
         this.user = user;
     }
 
-    public List<HostDetail> getHostDetails() {
+    public Set<HostDetail> getHostDetails() {
         return hostDetails;
     }
 
-    public void setHostDetails(List<HostDetail> hostDetails) {
+    public void setHostDetails(Set<HostDetail> hostDetails) {
         this.hostDetails = hostDetails;
+    }
+
+    public void addHost(HostDetail loginHost) {
+        if (hostDetails == null) {
+            hostDetails = new HashSet<HostDetail>();
+        }
+        hostDetails.add(loginHost);
     }
 }

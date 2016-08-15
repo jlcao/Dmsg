@@ -7,9 +7,14 @@ public enum MessageType {
     AUTH_REQ(1,"鉴权请求"),
     AUTH_RES(2, "鉴权响应"),
     SEND_TEXT(3, "消息透传"),
-    SAVE_TEXT(4, "存储（&转发）消息"),
+    SAVE_TEXT(4, "存储(&转发)消息"),
     MSG_ACK(5,"消息回执确认"),
-    CLOSE(10,"关闭连接");
+    CLOSE(10,"关闭连接"),
+
+
+    BROADCAST_REQ(11,"广播"),
+    BROADCAST_RES(12,"广播响应")
+    ;
 
     private int val;
     private String desc;

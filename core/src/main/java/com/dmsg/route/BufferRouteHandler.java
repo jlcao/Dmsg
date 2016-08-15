@@ -1,35 +1,42 @@
 package com.dmsg.route;
 
-import com.dmsg.cache.CacheManager;
-import com.dmsg.data.HostDetail;
+import com.dmsg.cache.HostCache;
+import com.dmsg.cache.UserCache;
+import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.data.UserDetail;
 import com.dmsg.message.MessageContext;
+import com.dmsg.message.MessageSender;
+import com.dmsg.message.vo.DestAddress;
+import com.dmsg.message.vo.Header;
 import com.dmsg.message.vo.MessageBase;
+import com.dmsg.message.vo.MessageType;
 import com.dmsg.route.vo.RouteMessage;
 import com.dmsg.server.DmsgServerConfig;
 import com.dmsg.server.DmsgServerContext;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 缓存路由策略
  * Created by jlcao on 2016/8/2.
  */
 public class BufferRouteHandler extends RouteHandler {
-    CacheManager cacheManager;
+    UserCache userCache;
     DmsgServerConfig config;
+    HostCache hostCache;
+    MessageSender sender;
+    LocalUserChannelManager localUserChannelManager;
 
-    public BufferRouteHandler(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
-        config = DmsgServerContext.getServerContext().getConfig();
+    public BufferRouteHandler(DmsgServerContext dmsgServerContext) {
+        userCache = dmsgServerContext.getUserCache();
+        config = dmsgServerContext.getConfig();
+        //broadcastRouteHandler = new BroadcastRouteHandler(dmsgServerContext);
+        hostCache = dmsgServerContext.getHostCache();
+        sender = dmsgServerContext.getSender();
+        localUserChannelManager = dmsgServerContext.getUserChannelManager();
     }
 
-    public BufferRouteHandler() {
-        this(DmsgServerContext.getServerContext().getCache());
-    }
 
-    public RouteMessage route(MessageContext messageContext) throws Exception {
+
+    public void route(MessageContext messageContext) throws Exception {
         RouteMessage routeMessage = new RouteMessage();
         MessageBase message = messageContext.getMessage();
         if (message == null) {
@@ -37,19 +44,36 @@ public class BufferRouteHandler extends RouteHandler {
         }
         routeMessage.setMessage(message);
         //通过三方缓存获取用户相关信息
-        UserDetail userDetail = cacheManager.getUserByName(config.getUserNodeFlag(), message.getTo().getUser());
-        if (userDetail != null) {
-            List<HostDetail> hosts = new ArrayList<HostDetail>();
-            hosts.add(userDetail.getLoginHost());
-            routeMessage.setHostDetails(hosts);
-        } else {
-            //信息获取失败，广播
-
-
-
+        String[] users = message.getTo().getUsers();
+        for (String user : users) {
+            if (localUserChannelManager.isAvailable(user)) {
+                sender.send(localUserChannelManager.getContext(user), message);
+            } else {
+                UserDetail userDetail = userCache.getUserByName(user);
+                if (userDetail != null) {
+                    routeMessage.addHost(userDetail.getLoginHost());
+                } else {
+                    //离线消息|广播
+                    RouteMessage tmp = generateBroadcastRoute(message, user);
+                    sender.send(tmp);
+                }
+            }
         }
+        sender.send(routeMessage);
+    }
 
-
-        return routeMessage;
+    private RouteMessage generateBroadcastRoute(MessageBase message, String user) {
+        MessageBase messageBase = message.clone();
+        messageBase.setTo(new DestAddress(user));
+        Header header = new Header();
+        header.setAuthKey(messageBase.getHeader().getAuthKey());
+        header.setCall(messageBase.getHeader().getCall());
+        header.setMsgId(messageBase.getHeader().getMsgId());
+        header.setMsgType(MessageType.BROADCAST_REQ.getVal());
+        RouteMessage tmp = new RouteMessage();
+        messageBase.setHeader(header);
+        tmp.setMessage(messageBase);
+        tmp.setHostDetails(hostCache.getAll());
+        return tmp;
     }
 }

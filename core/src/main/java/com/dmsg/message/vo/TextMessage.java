@@ -7,7 +7,7 @@ public class TextMessage extends MessageBody {
 
     private String content;
 
-    private String receiver;
+    private String[] receivers;
 
 
     public String getContent() {
@@ -18,11 +18,11 @@ public class TextMessage extends MessageBody {
         this.content = content;
     }
 
-    public String getReceiver() {
-        return receiver;
+    public String[] getReceivers() {
+        return receivers;
     }
 
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
+    public void setReceivers(String[] receivers) {
+        this.receivers = receivers;
     }
 }

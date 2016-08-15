@@ -77,4 +77,8 @@ public class DmsgServerConfig{
     public String getUserNodeFlag() {
         return properties.getProperty("cache.user.key", "dmsg.usercache");
     }
+
+    public String getServerAuthKey() {
+        return properties.getProperty("server.auth.key", "dmsg");
+    }
 }

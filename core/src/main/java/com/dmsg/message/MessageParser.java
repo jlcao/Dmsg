@@ -23,6 +23,7 @@ public class MessageParser {
         Header header = data.getObject(HEADER, Header.class);
         MessageType type = MessageType.getByVal(header.getMsgType());
         MessageBase result = new MessageBase(header);
+
         MessageBody body = null;
         switch (type) {
             case AUTH_REQ:
@@ -35,7 +36,11 @@ public class MessageParser {
                 body = data.getObject(BODY, TextMessage.class);
                 break;
             case SAVE_TEXT:
-                body = data.getObject(BODY, TextMessage.class);
+                DestAddress destAddress = new DestAddress();
+                TextMessage tmp = data.getObject(BODY, TextMessage.class);
+                destAddress.setUsers(tmp.getReceivers());
+                result.setTo(destAddress);
+                body = tmp;
                 break;
             case MSG_ACK:
                 body = data.getObject(BODY, AskMessage.class);

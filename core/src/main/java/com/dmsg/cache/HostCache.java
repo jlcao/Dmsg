@@ -6,7 +6,7 @@ import com.dmsg.server.DmsgServerConfig;
 import com.dmsg.server.DmsgServerContext;
 import com.dmsg.utils.NullUtils;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,11 +17,14 @@ public class HostCache {
     CacheManager cacheManager;
     DmsgServerConfig config;
     long refreshTime;
+    Set<HostDetail> all;
+
 
     public HostCache(DmsgServerContext context) {
         this.cacheManager = context.getCache();
         this.config = context.getConfig();
         this.refreshTime = config.getHostRefreshCycle();
+        this.all = new HashSet<HostDetail>();
     }
 
 
@@ -30,33 +33,47 @@ public class HostCache {
         HostDetail detail = host.get(hostName);
         if (detail == null) {
             detail = getHostOnCache(hostName);
-            if (detail != null) {
-                synchronized (host) {
-                    host.put(hostName, detail);
-                }
-            }
+
+            this.put(detail);
         } else {
             if (isTimeOut(detail)) {
                 detail = getHostOnCache(hostName);
                 if (detail != null) {
-                    synchronized (host) {
-                        host.put(hostName, detail);
-                    }
-                }
-            } else {
-                synchronized (host) {
-                    host.remove(hostName);
+                    this.put(detail);
+                } else {
+                    this.remove(hostName);
                 }
             }
         }
         return detail;
     }
 
+    private void remove(String hostname) {
+        synchronized (host) {
+            host.remove(hostname);
+        }
+    }
+
+    private void put(HostDetail hostDetail) {
+        if (hostDetail != null) {
+            synchronized (host) {
+                host.put(hostDetail.getIp() + ":" + hostDetail.getPort(), hostDetail);
+            }
+            synchronized (all) {
+                all.add(hostDetail);
+            }
+        }
+    }
+
     private HostDetail getHostOnCache(String hostName) {
-        HostDetail detail = null;
         String str = cacheManager.getResource().hget(config.getServerNodeFlag(), hostName);
-        if (!NullUtils.isEmpty(str)) {
-            detail = JSON.toJavaObject(JSON.parseObject(str), HostDetail.class);
+        return parse(str);
+    }
+
+    private HostDetail parse(String string) {
+        HostDetail detail = null;
+        if (!NullUtils.isEmpty(string)) {
+            detail = JSON.toJavaObject(JSON.parseObject(string), HostDetail.class);
             detail.setLastTime(System.currentTimeMillis());
         }
         return detail;
@@ -83,5 +100,19 @@ public class HostCache {
     }
 
 
+    public Set<HostDetail> getAll() {
+
+        if (all == null) {
+            all = new HashSet<HostDetail>();
+            Map<String, String> hostsMap = cacheManager.getResource().hgetAll(config.getServerNodeFlag());
+            for (String name : hostsMap.keySet()) {
+                HostDetail detail = parse(hostsMap.get(name));
+                all.add(detail);
+                this.put(detail);
+            }
+        }
+
+        return all;
+    }
 
 }
