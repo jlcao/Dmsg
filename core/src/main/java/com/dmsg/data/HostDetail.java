@@ -66,4 +66,15 @@ public class HostDetail{
     }
 
 
+    @Override
+    public String toString() {
+        return "HostDetail{" +
+                "ip='" + ip + '\'' +
+                ", port=" + port +
+                ", lastTime=" + lastTime +
+                ", hostId=" + hostId +
+                ", userSize=" + userSize +
+                ", msgSize=" + msgSize +
+                '}';
+    }
 }

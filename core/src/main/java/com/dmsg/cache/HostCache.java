@@ -1,10 +1,14 @@
 package com.dmsg.cache;
 
 import com.alibaba.fastjson.JSON;
+import com.dmsg.channel.RemoteHostChannelManager;
 import com.dmsg.data.HostDetail;
+import com.dmsg.netty.NetSocketClient;
 import com.dmsg.server.DmsgServerConfig;
 import com.dmsg.server.DmsgServerContext;
 import com.dmsg.utils.NullUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,53 +20,90 @@ public class HostCache {
     final Map<String, HostDetail> host = new ConcurrentHashMap<String, HostDetail>();
     CacheManager cacheManager;
     DmsgServerConfig config;
+    RemoteHostChannelManager remoteHostChannelManager;
     long refreshTime;
-    Set<HostDetail> all;
+    HostDetail local;
+    Logger logger = LoggerFactory.getLogger(HostCache.class);
+    private static HostCache hostCache;
 
+    public static HostCache getInstance(DmsgServerContext context) {
+        if (hostCache == null) {
+            hostCache = new HostCache(context);
+        }
+        return hostCache;
+    }
 
-    public HostCache(DmsgServerContext context) {
+    private HostCache(DmsgServerContext context) {
         this.cacheManager = context.getCache();
         this.config = context.getConfig();
         this.refreshTime = config.getHostRefreshCycle();
-        this.all = new HashSet<HostDetail>();
+
+        this.remoteHostChannelManager = context.getRemotHostsChannelManager();
+        local = context.getHostDetail();
+
+
+        Thread thread = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                while (true) {
+                    try {
+                        refresh();
+                        logger.info("远程服务器缓存刷新成功！");
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
+        thread.start();
     }
 
-
-    public HostDetail getHost(String hostName) {
-        cacheManager = DmsgServerContext.getServerContext().getCache();
-        HostDetail detail = host.get(hostName);
-        if (detail == null) {
-            detail = getHostOnCache(hostName);
-
-            this.put(detail);
-        } else {
-            if (isTimeOut(detail)) {
-                detail = getHostOnCache(hostName);
-                if (detail != null) {
-                    this.put(detail);
-                } else {
-                    this.remove(hostName);
+    private void refresh() throws InterruptedException {
+        Map<String, String> hostsMap = cacheManager.getResource().hgetAll(config.getServerNodeFlag());
+        for (String name : hostsMap.keySet()) {
+            HostDetail detail = host.get(name);
+            if (detail != null) {
+                if (isTimeOut(detail)) {
+                    detail.setLastTime(System.currentTimeMillis());
                 }
+            } else {
+                detail = parse(hostsMap.get(name));
+                this.put(detail);
             }
         }
-        return detail;
     }
 
-    private void remove(String hostname) {
+
+
+
+
+    public void remove(String hostname) {
         synchronized (host) {
             host.remove(hostname);
         }
     }
 
-    private void put(HostDetail hostDetail) {
+    private void put(HostDetail hostDetail) throws InterruptedException {
+        if (!(hostDetail.getIp().equals(local.getIp()) && hostDetail.getPort() == local.getPort())) {
+            NetSocketClient client = new NetSocketClient(hostDetail.getIp(), hostDetail.getPort());
+            client.connection();
+        }
         if (hostDetail != null) {
             synchronized (host) {
                 host.put(hostDetail.getIp() + ":" + hostDetail.getPort(), hostDetail);
             }
-            synchronized (all) {
-                all.add(hostDetail);
-            }
         }
+
     }
 
     private HostDetail getHostOnCache(String hostName) {
@@ -101,18 +142,6 @@ public class HostCache {
 
 
     public Set<HostDetail> getAll() {
-
-        if (all == null) {
-            all = new HashSet<HostDetail>();
-            Map<String, String> hostsMap = cacheManager.getResource().hgetAll(config.getServerNodeFlag());
-            for (String name : hostsMap.keySet()) {
-                HostDetail detail = parse(hostsMap.get(name));
-                all.add(detail);
-                this.put(detail);
-            }
-        }
-
-        return all;
+        return (Set<HostDetail>) host.values();
     }
-
 }

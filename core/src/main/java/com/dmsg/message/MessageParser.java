@@ -10,6 +10,9 @@ import com.dmsg.message.vo.*;
 public class MessageParser {
     public static final String HEADER = "header";
     public static final String BODY = "body";
+    public static final String TO = "to";
+    public static final String FROM = "from";
+
 
     public void parse(MessageContext messageContext) {
         String source = messageContext.getSource();
@@ -23,6 +26,15 @@ public class MessageParser {
         Header header = data.getObject(HEADER, Header.class);
         MessageType type = MessageType.getByVal(header.getMsgType());
         MessageBase result = new MessageBase(header);
+        if (data.containsKey(TO)) {
+            DestAddress destAddress = data.getObject(TO, DestAddress.class);
+            result.setTo(destAddress);
+        }
+        if (data.containsKey(FROM)) {
+            SourceAddress sourceAddress = data.getObject(FROM, SourceAddress.class);
+            result.setFrom(sourceAddress);
+        }
+
 
         MessageBody body = null;
         switch (type) {
@@ -44,6 +56,12 @@ public class MessageParser {
                 break;
             case MSG_ACK:
                 body = data.getObject(BODY, AskMessage.class);
+                break;
+            case BROADCAST_REQ:
+                body = data.getObject(BODY, BroadcastReqMessage.class);
+                break;
+            case BROADCAST_RES:
+                body = data.getObject(BODY, BroadcastResMessage.class);
                 break;
             case CLOSE:
                 body = data.getObject(BODY, ConnectionCloseMessage.class);

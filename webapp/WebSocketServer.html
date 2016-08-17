@@ -14,7 +14,7 @@
         window.WebSocket = window.MozWebSocket;
     }
     if (window.WebSocket) {
-        socket = new WebSocket("ws://localhost:8080/websocket?key=34523121234");
+        socket = new WebSocket("ws://localhost:8080/websocket");
 
         socket.onmessage = function (event) {
             var ta = document.getElementById('responseText');
@@ -39,7 +39,7 @@
             return;
         }
         if (socket.readyState == WebSocket.OPEN) {
-            socket.send('{type:"AUTH",username:"'+username+'",password:"123"}');
+            socket.send('{header:{msgType:1},body:{username:"'+username+'",password:"123"}}');
         }
         else {
             alert("WebSocket连接没有建立成功!");
@@ -51,7 +51,14 @@
             return;
         }
         if (socket.readyState == WebSocket.OPEN) {
-            socket.send('{type:"TEXT",receiver:"'+receiver+'",text:"'+message+'"}');
+            var data = {};
+            data.header = {msgType: 3, call: 0, msgId: "463453452", authKey: "463453452"};
+            data.to = {users:[receiver]};
+            data.body = {receiver: receiver, content: message};
+            console.log(data);
+            console.log(JSON.stringify(data));
+
+            socket.send(JSON.stringify(data));
         }
         else {
             alert("WebSocket连接没有建立成功!");

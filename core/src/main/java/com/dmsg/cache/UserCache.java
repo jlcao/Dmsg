@@ -15,10 +15,18 @@ public class UserCache  {
     private CacheManager cacheManager;
     private DmsgServerConfig config;
     long refreshTime;
-    public UserCache(DmsgServerContext context) {
+    private static UserCache userCache;
+    private UserCache(DmsgServerContext context) {
         this.cacheManager = context.getCache();
         this.config = context.getConfig();
         this.refreshTime = config.getHostRefreshCycle();
+    }
+
+    public static UserCache getInstance(DmsgServerContext context) {
+        if (userCache == null) {
+            userCache = new UserCache(context);
+        }
+        return userCache;
     }
 
     public UserDetail getUserByName(String userName) {

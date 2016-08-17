@@ -87,4 +87,41 @@ public class MessageBase {
 
         return messageBase;
     }
+
+    public static MessageBase createBroadcastRes(String msgId, String user, HostDetail local) {
+        MessageBase messageBase = new MessageBase();
+        SourceAddress sourceAddress = new SourceAddress();
+        sourceAddress.setHost(local.getIp());
+        sourceAddress.setPort(local.getPort());
+
+        Header header = new Header();
+        header.setMsgType(MessageType.BROADCAST_RES.getVal());
+        BroadcastResMessage broadcastResMessage = new BroadcastResMessage();
+        broadcastResMessage.setMsgId(msgId);
+        broadcastResMessage.setUserName(user);
+        messageBase.setBody(broadcastResMessage);
+        messageBase.setHeader(header);
+        messageBase.setFrom(sourceAddress);
+
+        return messageBase;
+    }
+
+    public static MessageBase createBroadcastReq(String user, MessageBase message) {
+        MessageBase messageBase = new MessageBase();
+
+        Header header = new Header();
+        header.setAuthKey(messageBase.getHeader().getAuthKey());
+        header.setCall(messageBase.getHeader().getCall());
+        header.setMsgId(messageBase.getHeader().getMsgId());
+        header.setMsgType(MessageType.BROADCAST_REQ.getVal());
+
+        BroadcastReqMessage broadcastReqMessage = new BroadcastReqMessage();
+        broadcastReqMessage.setUserName(user);
+        broadcastReqMessage.setMessage(message);
+        messageBase.setBody(broadcastReqMessage);
+        messageBase.setHeader(header);
+
+
+        return messageBase;
+    }
 }

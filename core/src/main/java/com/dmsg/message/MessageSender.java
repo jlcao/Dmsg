@@ -1,7 +1,7 @@
 package com.dmsg.message;
 
 import com.alibaba.fastjson.JSON;
-import com.dmsg.channel.RemotHostChannelManager;
+import com.dmsg.channel.RemoteHostChannelManager;
 import com.dmsg.data.HostDetail;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.route.vo.RouteMessage;
@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class MessageSender {
     DmsgServerContext dmsgServerContext;
-    RemotHostChannelManager remotHostChannelManager;
+    RemoteHostChannelManager remotHostChannelManager;
 
     public MessageSender(DmsgServerContext dmsgServerContext) {
         this.dmsgServerContext = dmsgServerContext;

@@ -22,6 +22,9 @@ public class LocalUserChannelManager {
         return instance;
     }
 
+    private LocalUserChannelManager() {
+    }
+
     // 增加用户与连接的上下文映射
     public void addContext(String username,String authKey, ChannelHandlerContext ctx) {
         UserDetail userDetail = new UserDetail();

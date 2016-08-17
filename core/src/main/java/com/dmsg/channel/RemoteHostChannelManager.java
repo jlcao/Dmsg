@@ -1,5 +1,6 @@
 package com.dmsg.channel;
 
+import com.dmsg.cache.HostCache;
 import com.dmsg.data.UserDetail;
 import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelHandlerContext;
@@ -13,12 +14,22 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by cjl on 2016/8/11.
  */
-public class RemotHostChannelManager {
+public class RemoteHostChannelManager {
     final private Map<String, ChannelHandlerContext> sessions = new ConcurrentHashMap<String, ChannelHandlerContext>();
     final private Map<ChannelId, String> relations = new ConcurrentHashMap<ChannelId, String>();
-    private static RemotHostChannelManager instance = new RemotHostChannelManager();
-    public static RemotHostChannelManager getInstance(){
+    private static RemoteHostChannelManager instance;
+    private static HostCache hostCache;
+
+    public static RemoteHostChannelManager getInstance(DmsgServerContext dmsgServerContext) {
+        if (instance == null) {
+            instance = new RemoteHostChannelManager();
+            hostCache = dmsgServerContext.getHostCache();
+        }
         return instance;
+    }
+
+    private RemoteHostChannelManager() {
+
     }
 
     // 增加用户与连接的上下文映射
@@ -61,7 +72,9 @@ public class RemotHostChannelManager {
             sessions.remove(name);
             relations.remove(ctx.toString());
         }
+        hostCache.remove(name);
     }
+
 
     public int staticClients(){
         return relations.size();

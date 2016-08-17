@@ -18,6 +18,7 @@ public abstract class DmsgFilter implements Filter {
 
     public DmsgFilter() {
         this.attentionType = new ArrayList<MessageType>();
+        this.init();
     }
 
     public Filter appendAttentionType(MessageType type) {

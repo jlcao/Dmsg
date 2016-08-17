@@ -6,7 +6,7 @@ import com.dmsg.cache.HostCache;
 import com.dmsg.cache.RedisPoolBuilder;
 import com.dmsg.cache.UserCache;
 import com.dmsg.channel.LocalUserChannelManager;
-import com.dmsg.channel.RemotHostChannelManager;
+import com.dmsg.channel.RemoteHostChannelManager;
 import com.dmsg.data.HostDetail;
 import com.dmsg.exception.ServerConfigException;
 import com.dmsg.filter.Filter;
@@ -21,6 +21,9 @@ import com.dmsg.route.RouteHandler;
 import com.dmsg.utils.NullUtils;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -45,26 +48,25 @@ public class DmsgServerContext {
     private DmsgServerConfig config;
     private RouteHandler routeHander;
     private MessageSender sender;
-    private RemotHostChannelManager remotChannelHosts;
+    private RemoteHostChannelManager remotChannelHosts;
     private LocalUserChannelManager userChannelManager;
+
+    private Logger logger = LoggerFactory.getLogger(DmsgServerContext.class);
 
     private DmsgServerContext() {
         initConfig();
         executor = MessageExecutor.getInstance();
         redisPoolBuilder = new RedisPoolBuilder(config.getCacheHost(), config.getCachePort());
-        cache = new CacheManager(redisPoolBuilder);
-        remotChannelHosts = RemotHostChannelManager.getInstance();
-        userChannelManager = LocalUserChannelManager.getInstance();
+
+
         filters = new ArrayList<Filter>();
-        hostCache = new HostCache(this);
-        userCache = new UserCache(this);
     }
 
     private void initConfig() {
         config = new DmsgServerConfig();
     }
 
-    private void addLastFilter(Filter filter) {
+    public void addLastFilter(Filter filter) {
         filters.add(filter);
     }
 
@@ -73,8 +75,17 @@ public class DmsgServerContext {
     }
 
     public void builderNetSocketServer() throws ServerConfigException {
-        netSocketServer = new NetSocketServer(bossGroup, workerGroup, InitializerFactory.create(config.getProtocol()), config.getPort());
 
+        builderNetSocketServer(config.getPort());
+    }
+    public void builderNetSocketServer(int port) throws ServerConfigException {
+        try {
+            logger.info("saveNode");
+            saveNode(port);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        netSocketServer = new NetSocketServer(bossGroup, workerGroup, InitializerFactory.create(config.getProtocol()), port);
     }
 
     public static DmsgServerContext getServerContext() {
@@ -84,9 +95,6 @@ public class DmsgServerContext {
         return serverContext;
     }
 
-    public static void setServerContext(DmsgServerContext serverContext) {
-        DmsgServerContext.serverContext = serverContext;
-    }
 
     public DmsgServerConfig getConfig() {
         return config;
@@ -99,17 +107,14 @@ public class DmsgServerContext {
             } catch (ServerConfigException e) {
                 e.printStackTrace();
             }
+
         }
-        netSocketServer.run();
+
         RouteFilter routeFilter = new RouteFilter();
         routeFilter.appendAttentionType(MessageType.SAVE_TEXT);
-        routeFilter.appendAttentionType(MessageType.SAVE_TEXT);
+        routeFilter.appendAttentionType(MessageType.SEND_TEXT);
         this.addLastFilter(routeFilter);
-        try {
-            saveNode();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        netSocketServer.run();
 
     }
 
@@ -117,12 +122,13 @@ public class DmsgServerContext {
         return executor;
     }
 
-    private void saveNode() throws UnknownHostException {
+    private void saveNode(int portInt) throws UnknownHostException {
+
         InetAddress addr = InetAddress.getLocalHost();
         String agentIp = config.getAgentIp();
         String agentPort = config.getAgentPort();
         String ip=addr.getHostAddress().toString();//获得本机IP
-        String port = config.getPort()+"";
+        String port = portInt+"";
 
         if (!NullUtils.isEmpty(agentIp)) {
             ip = agentIp;
@@ -139,7 +145,10 @@ public class DmsgServerContext {
         hostDetail.setUserSize(0);
         hostDetail.setMsgSize(0);
         hostDetail.setLastTime(System.currentTimeMillis());
-        cache.getResource().hset(config.getServerNodeFlag(), host, JSON.toJSONString(hostDetail));
+        logger.info(hostDetail.toString());
+        Jedis jedis = getCache().getResource();
+        jedis.hdel(config.getServerNodeFlag(), host);
+        jedis.hset(config.getServerNodeFlag(), host, JSON.toJSONString(hostDetail));
     }
 
     public HostDetail getHostDetail() {
@@ -149,6 +158,9 @@ public class DmsgServerContext {
 
 
     public CacheManager getCache() {
+        if (cache == null) {
+            cache = new CacheManager(redisPoolBuilder);
+        }
         return cache;
     }
 
@@ -162,7 +174,7 @@ public class DmsgServerContext {
 
     public UserCache getUserCache() {
         if (userCache == null) {
-            userCache = new UserCache(this);
+            userCache = UserCache.getInstance(this);
         }
         return userCache;
     }
@@ -171,7 +183,7 @@ public class DmsgServerContext {
 
     public HostCache getHostCache() {
         if (hostCache == null) {
-            hostCache = new HostCache(this);
+            hostCache = HostCache.getInstance(this);
         }
         return hostCache;
     }
@@ -183,11 +195,18 @@ public class DmsgServerContext {
         return sender;
     }
 
-    public RemotHostChannelManager getRemotHostsChannelManager() {
+    public RemoteHostChannelManager getRemotHostsChannelManager() {
+        if (remotChannelHosts == null) {
+            remotChannelHosts = RemoteHostChannelManager.getInstance(this);
+        }
+
         return remotChannelHosts;
     }
 
     public LocalUserChannelManager getUserChannelManager() {
+        if (userChannelManager == null) {
+            userChannelManager = LocalUserChannelManager.getInstance();
+        }
         return userChannelManager;
     }
 }

@@ -34,7 +34,7 @@ public class MessageHandler implements Runnable {
         message = messageContext.getMessage();
         channelId = messageContext.getChannelHandlerContext().channel().id();
         dmsgServerContext = messageContext.getServerContext();
-        filters = new ArrayList<Filter>();
+        filters = dmsgServerContext.getFilters();
         sourceAddress = new SourceAddress();
         sourceAddress.setHost(dmsgServerContext.getHostDetail().getIp());
         sourceAddress.setPort(dmsgServerContext.getHostDetail().getPort());
@@ -45,6 +45,7 @@ public class MessageHandler implements Runnable {
         try {
             process();
         } catch (Exception e) {
+            e.printStackTrace();
             messageContext.getChannelHandlerContext().channel().writeAndFlush(new TextWebSocketFrame(e.getMessage().toString()));
         }
 
@@ -57,6 +58,7 @@ public class MessageHandler implements Runnable {
             auth();
         }
         FilterChain chain = getFilterChain();
+
         chain.doFilter(messageContext);
     }
 

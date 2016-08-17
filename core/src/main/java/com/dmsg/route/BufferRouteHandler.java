@@ -63,15 +63,8 @@ public class BufferRouteHandler extends RouteHandler {
     }
 
     private RouteMessage generateBroadcastRoute(MessageBase message, String user) {
-        MessageBase messageBase = message.clone();
-        messageBase.setTo(new DestAddress(user));
-        Header header = new Header();
-        header.setAuthKey(messageBase.getHeader().getAuthKey());
-        header.setCall(messageBase.getHeader().getCall());
-        header.setMsgId(messageBase.getHeader().getMsgId());
-        header.setMsgType(MessageType.BROADCAST_REQ.getVal());
+        MessageBase messageBase = MessageBase.createBroadcastReq(user, message);
         RouteMessage tmp = new RouteMessage();
-        messageBase.setHeader(header);
         tmp.setMessage(messageBase);
         tmp.setHostDetails(hostCache.getAll());
         return tmp;

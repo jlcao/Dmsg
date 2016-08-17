@@ -16,7 +16,7 @@ public class DmsgServerConfig{
     private String host;
     public DmsgServerConfig() {
         try {
-            properties.load(new FileInputStream("D:\\E\\git\\Dmsg\\core\\src\\main\\resource\\cfg.properties"));
+            properties.load(new FileInputStream("core/src/main/resource/cfg.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,8 +53,7 @@ public class DmsgServerConfig{
     }
 
     public String getProtocol() {
-        String protocol = properties.getProperty("trans.protocol", "websocket");
-        return null;
+        return properties.getProperty("trans.protocol", "websocket");
     }
 
     public String getServerNodeFlag() {
@@ -70,8 +69,8 @@ public class DmsgServerConfig{
 
     public long getHostRefreshCycle() {
         String minute = properties.getProperty("node.refresh.cycle", "3");
-
-        return Integer.parseInt(minute) * 1000 * 60;
+        System.out.println(minute);
+        return Integer.parseInt(minute) * 1000L * 60;
     }
 
     public String getUserNodeFlag() {
