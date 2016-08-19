@@ -61,7 +61,9 @@ public class UserCache  {
 
     private UserDetail getUserOnCache(String userName) {
         UserDetail userDetail = cacheManager.getUserByName(config.getUserNodeFlag(),userName);
-        userDetail.setLastTime(System.currentTimeMillis());
+        if (userDetail != null) {
+            userDetail.setLastTime(System.currentTimeMillis());
+        }
         return userDetail;
     }
 

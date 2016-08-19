@@ -25,10 +25,13 @@ public class MessageSender {
 
     public void send(RouteMessage route) {
         Set<HostDetail> hosts = route.getHostDetails();
-        MessageBase messageBase = route.getMessage();
-        for (HostDetail hostDetail : hosts) {
-            send(remotHostChannelManager.getContext(hostDetail.keyFiled()), messageBase);
+        if (hosts != null && !hosts.isEmpty()) {
+            MessageBase messageBase = route.getMessage();
+            for (HostDetail hostDetail : hosts) {
+                send(remotHostChannelManager.getContext(hostDetail.keyFiled()), messageBase);
+            }
         }
+
     }
 
     public void send(ChannelHandlerContext context, MessageBase messageBase) {
