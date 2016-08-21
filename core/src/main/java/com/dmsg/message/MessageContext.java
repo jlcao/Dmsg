@@ -73,4 +73,14 @@ public class MessageContext {
     public String getBefrom() {
         return befrom;
     }
+
+    @Override
+    public String toString() {
+        return "MessageContext{" +
+                ", source='" + source + '\'' +
+                ", message=" + message +
+                ", messageType=" + messageType +
+                ", befrom='" + befrom + '\'' +
+                '}';
+    }
 }

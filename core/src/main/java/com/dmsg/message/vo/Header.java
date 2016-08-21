@@ -40,4 +40,14 @@ public class Header {
     public void setAuthKey(String authKey) {
         this.authKey = authKey;
     }
+
+    @Override
+    public String toString() {
+        return "Header{" +
+                "msgType=" + msgType +
+                ", call=" + call +
+                ", msgId='" + msgId + '\'' +
+                ", authKey='" + authKey + '\'' +
+                '}';
+    }
 }

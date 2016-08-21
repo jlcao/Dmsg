@@ -1,5 +1,7 @@
 package com.dmsg.data;
 
+import com.dmsg.message.vo.SourceAddress;
+
 /**
  * Created by cjl on 2016/7/28.
  */
@@ -11,6 +13,15 @@ public class HostDetail{
     private long userSize;
     private long msgSize;
 
+    public HostDetail(SourceAddress sourceAddress) {
+        this.ip = sourceAddress.getHost();
+        this.port = sourceAddress.getPort();
+        this.lastTime = System.currentTimeMillis();
+    }
+
+    public HostDetail() {
+
+    }
 
 
     public String getIp() {

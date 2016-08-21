@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by cjl on 2016/7/28.
  */
-public class HostCache {
-    final Map<String, HostDetail> host = new ConcurrentHashMap<String, HostDetail>();
+public class HostCache{
+    static Map<String, HostDetail> host = new ConcurrentHashMap<String, HostDetail>();
     CacheManager cacheManager;
     DmsgServerConfig config;
     RemoteHostChannelManager remoteHostChannelManager;
@@ -29,6 +29,7 @@ public class HostCache {
     public static HostCache getInstance(DmsgServerContext context) {
         if (hostCache == null) {
             hostCache = new HostCache(context);
+            ClientJob job = ClientJob.getInstance(context, hostCache);
         }
         return hostCache;
     }
@@ -41,50 +42,25 @@ public class HostCache {
         this.remoteHostChannelManager = context.getRemotHostsChannelManager();
         local = context.getHostDetail();
 
-
-        Thread thread = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                while (true) {
-                    try {
-                        refresh();
-                        logger.info("远程服务器缓存刷新成功！");
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        });
-        thread.start();
     }
 
-    private void refresh() throws InterruptedException {
+    public void refresh() throws Exception {
         Map<String, String> hostsMap = cacheManager.getResource().hgetAll(config.getServerNodeFlag());
         for (String name : hostsMap.keySet()) {
+            logger.info("name:{}", name);
             HostDetail detail = host.get(name);
             if (detail != null) {
+                logger.info("存在host:{} ,超时处理", name);
                 if (isTimeOut(detail)) {
                     detail.setLastTime(System.currentTimeMillis());
                 }
             } else {
+                logger.info("不存在host:{},all:{}", name, host);
                 detail = parse(hostsMap.get(name));
-                this.put(detail);
+                this.connection(detail);
             }
         }
     }
-
-
-
 
 
     public void remove(String hostname) {
@@ -93,17 +69,19 @@ public class HostCache {
         }
     }
 
-    private void put(HostDetail hostDetail) throws InterruptedException {
-        if (!(hostDetail.getIp().equals(local.getIp()) && hostDetail.getPort() == local.getPort())) {
-            NetSocketClient client = new NetSocketClient(hostDetail.getIp(), hostDetail.getPort());
-            client.connection();
+    public void put(HostDetail hostDetail) {
+        synchronized (host) {
+            host.put(hostDetail.keyFiled(), hostDetail);
         }
-        if (hostDetail != null) {
-            synchronized (host) {
-                host.put(hostDetail.getIp() + ":" + hostDetail.getPort(), hostDetail);
+    }
+
+    private void connection(HostDetail hostDetail) throws InterruptedException {
+        if (!hostDetail.getIp().equals(local.getIp()) || hostDetail.getPort() != local.getPort()) {
+            if (!remoteHostChannelManager.isAvailable(hostDetail.keyFiled())) {
+                NetSocketClient client = new NetSocketClient(hostDetail.getIp(), hostDetail.getPort());
+                client.connection();
             }
         }
-
     }
 
     private HostDetail getHostOnCache(String hostName) {

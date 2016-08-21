@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by cjl on 2016/7/28.
  */
 public class UserCache  {
-    private final Map<String, UserDetail> users = new ConcurrentHashMap<String, UserDetail>();
+    private static Map<String, UserDetail> users = new ConcurrentHashMap<String, UserDetail>();
     private CacheManager cacheManager;
     private DmsgServerConfig config;
     long refreshTime;

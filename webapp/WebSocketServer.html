@@ -13,26 +13,28 @@
     if (!window.WebSocket) {
         window.WebSocket = window.MozWebSocket;
     }
-    if (window.WebSocket) {
-        socket = new WebSocket("ws://localhost:8080/websocket");
+    function connection(url) {
+        if (window.WebSocket) {
+            socket = new WebSocket(url);
 
-        socket.onmessage = function (event) {
-            var ta = document.getElementById('responseText');
-            ta.value = "";
-            ta.value = event.data
-        };
-        socket.onopen = function (event) {
-            var ta = document.getElementById('responseText');
-            ta.value = "打开WebSocket服务正常，浏览器支持WebSocket!";
+            socket.onmessage = function (event) {
+                var ta = document.getElementById('responseText');
+                ta.value = "";
+                ta.value = event.data
+            };
+            socket.onopen = function (event) {
+                var ta = document.getElementById('responseText');
+                ta.value = "打开WebSocket服务正常，浏览器支持WebSocket!";
 
-        };
-        socket.onclose = function (event) {
-            var ta = document.getElementById('responseText');
-            ta.value = "";
-            ta.value = "WebSocket 关闭!";
-        };
-    } else {
-        alert("抱歉，您的浏览器不支持WebSocket协议!");
+            };
+            socket.onclose = function (event) {
+                var ta = document.getElementById('responseText');
+                ta.value = "";
+                ta.value = "WebSocket 关闭!";
+            };
+        } else {
+            alert("抱歉，您的浏览器不支持WebSocket协议!");
+        }
     }
     function login(username){
         if (!window.WebSocket) {
@@ -66,7 +68,8 @@
     }
 </script>
 <form onsubmit="return false;">
-    <input type="text" name="username"><button onclick="login(this.form.username.value)">登录</button>
+    地址:<input type="text" name="address" value="ws://localhost:8080/websocket">  <button onclick="connection(this.form.address.value)">连接</button><br/>
+    用户名:<input type="text" name="username"><button onclick="login(this.form.username.value)">登录</button>
 
     <br><br>
     接收者：<input type="text" name="receiver"/>

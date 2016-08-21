@@ -15,10 +15,10 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 /**
  * Created by cjl on 2016/8/15.
  */
-public class BroadcastReqHandler extends DmsgFilter {
+public class BroadcastReqFilter extends DmsgFilter {
     private DmsgServerContext dmsgServerContext;
 
-    public BroadcastReqHandler() {
+    public BroadcastReqFilter() {
         this.appendAttentionType(MessageType.BROADCAST_REQ);
     }
 

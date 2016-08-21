@@ -54,7 +54,8 @@ public class MessageHandler implements Runnable {
 
     private void process() throws Exception {
         //鉴权
-        if (!messageContext.getMessageType().equals(MessageType.AUTH_REQ)) {
+        logger.info("收到消息-{}",messageContext.getMessageType().getDesc());
+        if (!messageContext.getMessageType().equals(MessageType.AUTH_REQ)&&!messageContext.getMessageType().equals(MessageType.AUTH_RES)) {
             auth();
         }
         FilterChain chain = getFilterChain();

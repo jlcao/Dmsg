@@ -69,7 +69,6 @@ public class DmsgServerConfig{
 
     public long getHostRefreshCycle() {
         String minute = properties.getProperty("node.refresh.cycle", "3");
-        System.out.println(minute);
         return Integer.parseInt(minute) * 1000L * 60;
     }
 

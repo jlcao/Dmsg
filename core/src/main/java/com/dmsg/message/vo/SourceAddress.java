@@ -42,4 +42,13 @@ public class SourceAddress implements Cloneable  {
         }
 
     }
+
+    @Override
+    public String toString() {
+        return "SourceAddress{" +
+                "host='" + host + '\'' +
+                ", port=" + port +
+                ", user='" + user + '\'' +
+                '}';
+    }
 }

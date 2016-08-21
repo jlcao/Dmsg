@@ -1,6 +1,7 @@
 package com.dmsg.message.vo;
 
 import com.dmsg.data.HostDetail;
+import com.dmsg.server.DmsgServerContext;
 
 /**
  * Created by cjl on 2016/7/11.
@@ -72,15 +73,14 @@ public class MessageBase {
         this.to = to;
     }
 
-    public static MessageBase createAuthReq(AuthResMessage b,HostDetail local) {
+    public static MessageBase createAuthReq(AuthReqMessage b,HostDetail local) {
         MessageBase messageBase = new MessageBase();
-
         SourceAddress sourceAddress = new SourceAddress();
         sourceAddress.setHost(local.getIp());
         sourceAddress.setPort(local.getPort());
         Header header = new Header();
-        header.setMsgType(MessageType.AUTH_RES.getVal());
-
+        header.setMsgType(MessageType.AUTH_REQ.getVal());
+        header.setAuthKey(DmsgServerContext.getServerContext().getConfig().getServerAuthKey());
         messageBase.setBody(b);
         messageBase.setFrom(new SourceAddress());
         messageBase.setHeader(header);
@@ -123,5 +123,31 @@ public class MessageBase {
 
 
         return messageBase;
+    }
+
+    public static MessageBase createAuthRes(AuthResMessage authResMessage, HostDetail local) {
+        MessageBase messageBase = new MessageBase();
+
+        SourceAddress sourceAddress = new SourceAddress();
+        sourceAddress.setHost(local.getIp());
+        sourceAddress.setPort(local.getPort());
+        Header header = new Header();
+        header.setMsgType(MessageType.AUTH_RES.getVal());
+
+        messageBase.setBody(authResMessage);
+        messageBase.setFrom(new SourceAddress());
+        messageBase.setHeader(header);
+
+        return messageBase;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageBase{" +
+                "header=" + header +
+                ", body=" + body +
+                ", from=" + from +
+                ", to=" + to +
+                '}';
     }
 }

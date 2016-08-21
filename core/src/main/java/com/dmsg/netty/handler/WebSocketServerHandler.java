@@ -25,6 +25,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     private MessageExecutor executor;
     private DmsgServerContext serverContext;
 
+
     public WebSocketServerHandler() {
         serverContext = DmsgServerContext.getServerContext();
         executor = serverContext.getExecutor();
@@ -54,6 +55,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
         }
         //判断是否是Ping消息
         if (frame instanceof PingWebSocketFrame) {
+            log.info("收到ping");
             ctx.channel().write(new PongWebSocketFrame(frame.content().retain()));
             return;
         }

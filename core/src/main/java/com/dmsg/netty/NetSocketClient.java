@@ -17,6 +17,8 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
@@ -30,6 +32,7 @@ public class NetSocketClient {
     private int port;
     private WebSocketClientProtocolHandler clientProtocolHandler;
     private String url;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public NetSocketClient(String host, int port) {
         this.host = host;
@@ -43,6 +46,7 @@ public class NetSocketClient {
 
     public void connection() throws InterruptedException {
         Bootstrap bootstrap = new Bootstrap();
+        logger.info("连接远程服务器 {}:{}", host, port);
         bootstrap.group(bossGroup).
                 channel(NioSocketChannel.class).
                 remoteAddress(host, port).
@@ -60,12 +64,12 @@ public class NetSocketClient {
                         pipeline.addLast(new ServerContextHandler());
                     }
                 });
+        ChannelFuture channel = bootstrap.connect().sync();
     }
 
     public static void main(String args[]) throws InterruptedException {
         NetSocketClient client = new NetSocketClient("localhost", 8080);
         client.connection();
-
         Thread.sleep(1000000);
 
     }

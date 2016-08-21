@@ -1,14 +1,17 @@
 package com.dmsg.netty.handler;
 
-import com.dmsg.message.MessageContext;
-import com.dmsg.message.MessageExecutor;
-import com.dmsg.message.MessageHandler;
-import com.dmsg.message.MessageParser;
+import com.dmsg.data.HostDetail;
+import com.dmsg.message.*;
+import com.dmsg.message.vo.AuthReqMessage;
+import com.dmsg.message.vo.AuthResMessage;
+import com.dmsg.message.vo.MessageBase;
 import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientProtocolHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by cjl on 2016/7/13.
@@ -17,12 +20,15 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
     MessageExecutor executor;
     DmsgServerContext serverContext;
     MessageParser parser;
+    MessageSender sender;
+    Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
     public ServerContextHandler(){
         serverContext = DmsgServerContext.getServerContext();
         executor = MessageExecutor.getInstance();
         parser = new MessageParser();
+        sender = serverContext.getSender();
     }
 
     @Override
@@ -41,16 +47,25 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("handlerAdded");
+        logger.debug("handlerAdded");
         super.handlerAdded(ctx);
     }
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt.equals(WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE)) {
-            System.out.println("握手完成");
-            System.out.println("鉴权");
-            ctx.writeAndFlush(new TextWebSocketFrame("{type:\"AUTH\",username:\"host:127.0.0.1:8080\",password:\"123\"}"));
+            logger.debug("握手完成");
+            logger.debug("鉴权");
+            HostDetail local = serverContext.getHostDetail();
+            AuthReqMessage b = new AuthReqMessage();
+            b.setUsername("host " + local.getIp() + ":" + local.getPort());
+            MessageBase messageBase = MessageBase.createAuthReq(b, local);
+            sender.send(ctx, messageBase);
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.info(cause.getMessage());
     }
 }

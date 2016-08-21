@@ -8,6 +8,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by cjl on 2016/6/17.
@@ -17,6 +19,7 @@ public class NetSocketServer {
     private EventLoopGroup workerGroup;
     private ChannelInitializer<SocketChannel> channelInitializer;
     private int port = 8080;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public NetSocketServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, ChannelInitializer<SocketChannel> channelInitializer, int port) {
         this.bossGroup = bossGroup;
@@ -33,8 +36,8 @@ public class NetSocketServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(channelInitializer);
             Channel ch = b.bind(port).sync().channel();
-            System.out.println("web socket server started at port " + port);
-            System.out.println("open your browser and navigate to http://localhost:" + port);
+            logger.info("web socket server started at port {}", port);
+            logger.info("open your browser and navigate to ws://localhost:{}" , port);
             ch.closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
