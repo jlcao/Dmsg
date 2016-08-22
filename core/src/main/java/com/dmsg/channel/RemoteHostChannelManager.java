@@ -15,8 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by cjl on 2016/8/11.
  */
 public class RemoteHostChannelManager {
-    final private Map<String, ChannelHandlerContext> sessions = new ConcurrentHashMap<String, ChannelHandlerContext>();
-    final private Map<ChannelId, String> relations = new ConcurrentHashMap<ChannelId, String>();
+
+    private static Map<String, ChannelHandlerContext> sessions = new ConcurrentHashMap<String, ChannelHandlerContext>();
+    private static Map<ChannelId, String> relations = new ConcurrentHashMap<ChannelId, String>();
     private static RemoteHostChannelManager instance;
     private static HostCache hostCache;
 

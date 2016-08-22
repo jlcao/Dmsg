@@ -3,13 +3,11 @@ package com.dmsg.route;
 import com.dmsg.cache.HostCache;
 import com.dmsg.cache.UserCache;
 import com.dmsg.channel.LocalUserChannelManager;
+import com.dmsg.data.HostDetail;
 import com.dmsg.data.UserDetail;
 import com.dmsg.message.MessageContext;
 import com.dmsg.message.MessageSender;
-import com.dmsg.message.vo.DestAddress;
-import com.dmsg.message.vo.Header;
 import com.dmsg.message.vo.MessageBase;
-import com.dmsg.message.vo.MessageType;
 import com.dmsg.route.vo.RouteMessage;
 import com.dmsg.server.DmsgServerConfig;
 import com.dmsg.server.DmsgServerContext;
@@ -24,6 +22,8 @@ public class BufferRouteHandler extends RouteHandler {
     HostCache hostCache;
     MessageSender sender;
     LocalUserChannelManager localUserChannelManager;
+    HostDetail localHost;
+
 
     public BufferRouteHandler(DmsgServerContext dmsgServerContext) {
         userCache = dmsgServerContext.getUserCache();
@@ -31,6 +31,7 @@ public class BufferRouteHandler extends RouteHandler {
         //broadcastRouteHandler = new BroadcastRouteHandler(dmsgServerContext);
         hostCache = dmsgServerContext.getHostCache();
         sender = dmsgServerContext.getSender();
+        this.localHost = dmsgServerContext.getHostDetail();
         localUserChannelManager = dmsgServerContext.getUserChannelManager();
     }
 
@@ -63,7 +64,7 @@ public class BufferRouteHandler extends RouteHandler {
     }
 
     private RouteMessage generateBroadcastRoute(MessageBase message, String user) {
-        MessageBase messageBase = MessageBase.createBroadcastReq(user, message);
+        MessageBase messageBase = MessageBase.createBroadcastReq(user, message, localHost);
         RouteMessage tmp = new RouteMessage();
         tmp.setMessage(messageBase);
         tmp.setHostDetails(hostCache.getAll());

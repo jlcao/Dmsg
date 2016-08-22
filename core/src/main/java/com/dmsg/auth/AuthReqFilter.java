@@ -37,7 +37,7 @@ public class AuthReqFilter extends DmsgFilter {
             }
 
         }
-        chain.doFilter(messageContext);
+        //chain.doFilter(messageContext);
 
     }
 
@@ -48,31 +48,28 @@ public class AuthReqFilter extends DmsgFilter {
         RemoteHostChannelManager channelManager = serverContext.getRemotHostsChannelManager();
         ChannelHandlerContext channel = messageContext.getChannelHandlerContext();
         String hosts = splits[1];
-        logger.info("处理来自{}节点的鉴权请求:{}", authMessage.getUsername(),messageContext);
-        if ("dmsg".equals(serverContext.getConfig().getServerAuthKey())) {
-            serverContext.getRemotHostsChannelManager().addContext(hosts, channel);
-            AuthResMessage authResMessage = new AuthResMessage();
-            authResMessage.setSucc(true);
-            authResMessage.setError(0);
-            authResMessage.setUsername("host " + hosts);
-
+        AuthResMessage authResMessage = new AuthResMessage(true, 0, "host " + hosts);
+        if (authMessage.getPassword().equals(serverContext.getConfig().getServerAuthKey())) {
             HostDetail hostDetail = new HostDetail(messageContext.getMessage().getFrom());
             if (!channelManager.isAvailable(hostDetail.keyFiled())) {
+                logger.info("存储来自客户端的上下文连接");
                 channelManager.addContext(hostDetail.keyFiled(), messageContext.getChannelHandlerContext());
                 hostCache.put(hostDetail);
-                logger.info("存储来自客户端的上下文连接");
             } else {
-                messageContext.getChannelHandlerContext().close();
+                logger.error("已经存在和该客户端的链接");
+                authResMessage.setSucc(false);
+                authResMessage.setError(2);
+                authResMessage.setMsg("已经存在和该客户端的链接");
+                authResMessage.setUsername("host " + hosts);
             }
-            sendRes(serverContext, channel, authResMessage);
-
         } else {
-            AuthResMessage authResMessage = new AuthResMessage();
+            logger.error("主机鉴权校验失败");
             authResMessage.setSucc(false);
             authResMessage.setError(1);
+            authResMessage.setMsg("主机鉴权校验失败");
             authResMessage.setUsername("host " + hosts);
-            sendRes(serverContext, channel, authResMessage);
         }
+        sendRes(serverContext, channel, authResMessage);
     }
 
     private void sendRes(DmsgServerContext serverContext, ChannelHandlerContext channel, AuthResMessage authResMessage) {

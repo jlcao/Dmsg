@@ -1,30 +1,33 @@
 package com.dmsg.auth;
 
-import com.alibaba.fastjson.JSON;
 import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.filter.DmsgFilter;
 import com.dmsg.filter.FilterChain;
 import com.dmsg.message.MessageContext;
+import com.dmsg.message.MessageSender;
+import com.dmsg.message.vo.BroadcastReqMessage;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.message.vo.MessageType;
-import com.dmsg.message.vo.TextMessage;
 import com.dmsg.server.DmsgServerContext;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by cjl on 2016/8/15.
  */
 public class BroadcastReqFilter extends DmsgFilter {
     private DmsgServerContext dmsgServerContext;
+    private MessageSender sender;
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public BroadcastReqFilter() {
-        this.appendAttentionType(MessageType.BROADCAST_REQ);
-    }
 
     public void doFilter(MessageContext messageContext, FilterChain chain) {
         if (dmsgServerContext == null) {
             this.dmsgServerContext = messageContext.getServerContext();
+        }
+        if (sender == null) {
+            this.sender = dmsgServerContext.getSender();
+
         }
 
         /**
@@ -38,18 +41,15 @@ public class BroadcastReqFilter extends DmsgFilter {
          */
         MessageBase messageBase = messageContext.getMessage();
         LocalUserChannelManager channelManager = messageContext.getServerContext().getUserChannelManager();
-
-        for (String user : messageBase.getTo().getUsers()) {
-            ChannelHandlerContext channelContext = channelManager.getContext(user);
-            if (channelManager != null) {
-                messageBase.getHeader().setMsgType(MessageType.SEND_TEXT.getVal());
-                channelContext.writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(messageBase)));
-                MessageBase res = MessageBase.createBroadcastRes(messageBase.getHeader().getMsgId(), user, dmsgServerContext.getHostDetail());
-                messageContext.getChannelHandlerContext().writeAndFlush(new TextWebSocketFrame(JSON.toJSONString(res)));
-            }
-
-
+        BroadcastReqMessage broadcastReqMessage = (BroadcastReqMessage) messageBase.getBody();
+        logger.info("广播消息：user[{}]", broadcastReqMessage.getUserName());
+        if (channelManager.isAvailable(broadcastReqMessage.getUserName())) {
+            MessageBase sourceMessage = broadcastReqMessage.getMessage();
+            //发送消息
+            sender.send(channelManager.getContext(broadcastReqMessage.getUserName()), sourceMessage);
+            //回执消息
         }
+
 
 
 
@@ -62,6 +62,6 @@ public class BroadcastReqFilter extends DmsgFilter {
     }
 
     public void init() {
-
+        appendAttentionType(MessageType.BROADCAST_REQ);
     }
 }

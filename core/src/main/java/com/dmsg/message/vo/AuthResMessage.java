@@ -10,6 +10,15 @@ public class AuthResMessage extends MessageBody {
     private String msg;
     private int error;
 
+    public AuthResMessage(boolean succ, int error, String username) {
+        this.succ = succ;
+        this.error = error;
+        this.username = username;
+    }
+
+    public AuthResMessage() {
+    }
+
     public String getUsername() {
         return username;
     }

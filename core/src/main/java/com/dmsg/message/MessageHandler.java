@@ -1,18 +1,17 @@
 package com.dmsg.message;
 
 import com.dmsg.channel.LocalUserChannelManager;
-import com.dmsg.exception.AuthenticationException;
 import com.dmsg.filter.Filter;
 import com.dmsg.filter.FilterChain;
-import com.dmsg.message.vo.*;
+import com.dmsg.message.vo.MessageBase;
+import com.dmsg.message.vo.MessageType;
+import com.dmsg.message.vo.SourceAddress;
 import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelId;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -55,31 +54,14 @@ public class MessageHandler implements Runnable {
     private void process() throws Exception {
         //鉴权
         logger.info("收到消息-{}",messageContext.getMessageType().getDesc());
-        if (!messageContext.getMessageType().equals(MessageType.AUTH_REQ)&&!messageContext.getMessageType().equals(MessageType.AUTH_RES)) {
-            auth();
-        }
+
         FilterChain chain = getFilterChain();
 
         chain.doFilter(messageContext);
     }
 
 
-    /**
-     * 判断用户鉴权信息
-     *
-     * @throws AuthenticationException
-     */
-    private void auth() throws AuthenticationException, CloneNotSupportedException {
-        String username = channelManager.findUserByChannelId(channelId);
-        if (StringUtils.isNotEmpty(username)) {
-            SourceAddress tmp = sourceAddress.clone();
-            tmp.setUser(username);
-            message.setFrom(tmp);
-            messageContext.setBefrom(username);
-        } else {
-            throw new AuthenticationException("用户还没有鉴权！");
-        }
-    }
+
 
     public FilterChain getFilterChain() {
         FilterChain chain = null;

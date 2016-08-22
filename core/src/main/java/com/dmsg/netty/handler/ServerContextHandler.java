@@ -3,7 +3,6 @@ package com.dmsg.netty.handler;
 import com.dmsg.data.HostDetail;
 import com.dmsg.message.*;
 import com.dmsg.message.vo.AuthReqMessage;
-import com.dmsg.message.vo.AuthResMessage;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.server.DmsgServerContext;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,9 +39,11 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        MessageContext messageContext = new MessageContext(serverContext, ctx, "{header:{msgType:10},body:{}}");
+      /*  MessageContext messageContext = new MessageContext(serverContext, ctx, "{header:{msgType:10},body:{}}");
         parser.parse(messageContext);
-        executor.execute(new MessageHandler(messageContext));
+        executor.execute(new MessageHandler(messageContext));*/
+        logger.info("handlerRemoved");
+
     }
 
     @Override
@@ -54,18 +55,20 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt.equals(WebSocketClientProtocolHandler.ClientHandshakeStateEvent.HANDSHAKE_COMPLETE)) {
-            logger.debug("握手完成");
             logger.debug("鉴权");
             HostDetail local = serverContext.getHostDetail();
             AuthReqMessage b = new AuthReqMessage();
             b.setUsername("host " + local.getIp() + ":" + local.getPort());
             MessageBase messageBase = MessageBase.createAuthReq(b, local);
+            b.setPassword(serverContext.getConfig().getServerAuthKey());
+
             sender.send(ctx, messageBase);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.info(cause.getMessage());
+        cause.printStackTrace();
+        super.exceptionCaught(ctx,cause);
     }
 }

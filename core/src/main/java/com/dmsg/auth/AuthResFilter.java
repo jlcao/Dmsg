@@ -31,15 +31,17 @@ public class AuthResFilter extends DmsgFilter {
             logger.info("节点 {} ,连接成功",hostDetail);
             if (!channelManager.isAvailable(hostDetail.keyFiled())) {
                 logger.info("存储节点================{}",hostDetail);
-
                 channelManager.addContext(hostDetail.keyFiled(), messageContext.getChannelHandlerContext());
                 hostCache.put(hostDetail);
-            } else {
-                messageContext.getChannelHandlerContext().close();
             }
 
         } else {
             logger.info("节点 {} ,连接失败 {}", messageBase.getFrom(), authResMessage.getError());
+            if (authResMessage.getError() == 2) {
+                logger.error("msg:{}", authResMessage.getMsg());
+                messageContext.getChannelHandlerContext().close();
+            }
+
         }
     }
 

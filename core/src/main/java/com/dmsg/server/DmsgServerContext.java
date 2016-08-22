@@ -1,6 +1,7 @@
 package com.dmsg.server;
 
 import com.alibaba.fastjson.JSON;
+import com.dmsg.auth.AuthenticationFilter;
 import com.dmsg.cache.CacheManager;
 import com.dmsg.cache.HostCache;
 import com.dmsg.cache.RedisPoolBuilder;
@@ -57,9 +58,8 @@ public class DmsgServerContext {
         initConfig();
         executor = MessageExecutor.getInstance();
         redisPoolBuilder = new RedisPoolBuilder(config.getCacheHost(), config.getCachePort());
-
-
         filters = new ArrayList<Filter>();
+        addLastFilter(new AuthenticationFilter());
     }
 
     private void initConfig() {
@@ -85,7 +85,7 @@ public class DmsgServerContext {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        netSocketServer = new NetSocketServer(bossGroup, workerGroup, InitializerFactory.create(config.getProtocol()), port);
+        netSocketServer = new NetSocketServer(bossGroup, workerGroup, InitializerFactory.create(config.getProtocol()), port,this);
     }
 
     public static DmsgServerContext getServerContext() {
@@ -101,6 +101,8 @@ public class DmsgServerContext {
     }
 
     public void start() {
+
+
         if (netSocketServer == null) {
             try {
                 builderNetSocketServer();
@@ -122,8 +124,12 @@ public class DmsgServerContext {
         return executor;
     }
 
-    private void saveNode(int portInt) throws UnknownHostException {
+    public void removeNode() {
+        Jedis jedis = getCache().getResource();
+        jedis.hdel(config.getServerNodeFlag(), hostDetail.keyFiled());
+    }
 
+    private void saveNode(int portInt) throws UnknownHostException {
         InetAddress addr = InetAddress.getLocalHost();
         String agentIp = config.getAgentIp();
         String agentPort = config.getAgentPort();
@@ -208,5 +214,9 @@ public class DmsgServerContext {
             userChannelManager = LocalUserChannelManager.getInstance();
         }
         return userChannelManager;
+    }
+
+    public void close() throws Exception {
+        this.removeNode();
     }
 }

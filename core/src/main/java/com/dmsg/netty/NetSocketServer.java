@@ -1,6 +1,7 @@
 package com.dmsg.netty;
 
 import com.dmsg.netty.initializer.InitializerFactory;
+import com.dmsg.server.DmsgServerContext;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -19,9 +20,10 @@ public class NetSocketServer {
     private EventLoopGroup workerGroup;
     private ChannelInitializer<SocketChannel> channelInitializer;
     private int port = 8080;
+    private DmsgServerContext serverContext;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public NetSocketServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, ChannelInitializer<SocketChannel> channelInitializer, int port) {
+    public NetSocketServer(EventLoopGroup bossGroup, EventLoopGroup workerGroup, ChannelInitializer<SocketChannel> channelInitializer, int port, DmsgServerContext serverContext) {
         this.bossGroup = bossGroup;
         this.workerGroup = workerGroup;
         this.port = port;
@@ -42,6 +44,7 @@ public class NetSocketServer {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }finally {
+            serverContext.removeNode();
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
@@ -52,6 +55,6 @@ public class NetSocketServer {
 
         EventLoopGroup workerGroup= new NioEventLoopGroup();
         int port = 8080;
-        new NetSocketServer(bossGroup,workerGroup, InitializerFactory.create("websocket"),port).run();
+        new NetSocketServer(bossGroup,workerGroup, InitializerFactory.create("websocket"),port, DmsgServerContext.getServerContext()).run();
     }
 }

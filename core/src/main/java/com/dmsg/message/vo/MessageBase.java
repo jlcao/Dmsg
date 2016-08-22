@@ -74,68 +74,66 @@ public class MessageBase {
     }
 
     public static MessageBase createAuthReq(AuthReqMessage b,HostDetail local) {
-        MessageBase messageBase = new MessageBase();
         SourceAddress sourceAddress = new SourceAddress();
         sourceAddress.setHost(local.getIp());
         sourceAddress.setPort(local.getPort());
         Header header = new Header();
         header.setMsgType(MessageType.AUTH_REQ.getVal());
         header.setAuthKey(DmsgServerContext.getServerContext().getConfig().getServerAuthKey());
-        messageBase.setBody(b);
-        messageBase.setFrom(new SourceAddress());
-        messageBase.setHeader(header);
 
-        return messageBase;
+        return createMessage(b,sourceAddress,header);
     }
 
     public static MessageBase createBroadcastRes(String msgId, String user, HostDetail local) {
-        MessageBase messageBase = new MessageBase();
         SourceAddress sourceAddress = new SourceAddress();
         sourceAddress.setHost(local.getIp());
         sourceAddress.setPort(local.getPort());
 
         Header header = new Header();
         header.setMsgType(MessageType.BROADCAST_RES.getVal());
+
         BroadcastResMessage broadcastResMessage = new BroadcastResMessage();
         broadcastResMessage.setMsgId(msgId);
         broadcastResMessage.setUserName(user);
-        messageBase.setBody(broadcastResMessage);
-        messageBase.setHeader(header);
-        messageBase.setFrom(sourceAddress);
 
-        return messageBase;
+
+        return createMessage(broadcastResMessage,sourceAddress,header);
     }
 
-    public static MessageBase createBroadcastReq(String user, MessageBase message) {
-        MessageBase messageBase = new MessageBase();
+    public static MessageBase createBroadcastReq(String user, MessageBase message, HostDetail local) {
 
         Header header = new Header();
-        header.setAuthKey(messageBase.getHeader().getAuthKey());
-        header.setCall(messageBase.getHeader().getCall());
-        header.setMsgId(messageBase.getHeader().getMsgId());
+        header.setAuthKey(message.getHeader().getAuthKey());
+        header.setCall(message.getHeader().getCall());
+        header.setMsgId(message.getHeader().getMsgId());
         header.setMsgType(MessageType.BROADCAST_REQ.getVal());
+
+        SourceAddress sourceAddress = new SourceAddress();
+        sourceAddress.setHost(local.getIp());
+        sourceAddress.setPort(local.getPort());
 
         BroadcastReqMessage broadcastReqMessage = new BroadcastReqMessage();
         broadcastReqMessage.setUserName(user);
         broadcastReqMessage.setMessage(message);
-        messageBase.setBody(broadcastReqMessage);
-        messageBase.setHeader(header);
 
 
-        return messageBase;
+        return createMessage(broadcastReqMessage,sourceAddress, header);
     }
 
     public static MessageBase createAuthRes(AuthResMessage authResMessage, HostDetail local) {
-        MessageBase messageBase = new MessageBase();
 
         SourceAddress sourceAddress = new SourceAddress();
         sourceAddress.setHost(local.getIp());
         sourceAddress.setPort(local.getPort());
         Header header = new Header();
         header.setMsgType(MessageType.AUTH_RES.getVal());
+        return createMessage(authResMessage,sourceAddress,header);
+    }
 
-        messageBase.setBody(authResMessage);
-        messageBase.setFrom(new SourceAddress());
+    public static MessageBase createMessage(MessageBody body,SourceAddress sourceAddress,Header header){
+        MessageBase messageBase = new MessageBase();
+        messageBase.setBody(body);
+        messageBase.setFrom(sourceAddress);
         messageBase.setHeader(header);
 
         return messageBase;
@@ -149,5 +147,18 @@ public class MessageBase {
                 ", from=" + from +
                 ", to=" + to +
                 '}';
+    }
+
+    public static MessageBase createAskMsg(boolean b, String msgId, String s) {
+        AskMessage askMessage = new AskMessage();
+        askMessage.setMsg(s);
+        askMessage.setMsgId(msgId);
+        askMessage.setSucc(b);
+
+        Header header = new Header();
+        header.setMsgType(MessageType.MSG_ACK.getVal());
+
+
+        return createMessage(askMessage, null, header);
     }
 }

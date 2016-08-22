@@ -64,7 +64,8 @@ public class NetSocketClient {
                         pipeline.addLast(new ServerContextHandler());
                     }
                 });
-        ChannelFuture channel = bootstrap.connect().sync();
+        Channel channel = bootstrap.connect().sync().channel();
+        channel.closeFuture().sync();
     }
 
     public static void main(String args[]) throws InterruptedException {

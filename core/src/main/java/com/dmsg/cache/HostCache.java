@@ -120,6 +120,8 @@ public class HostCache{
 
 
     public Set<HostDetail> getAll() {
-        return (Set<HostDetail>) host.values();
+        Set<HostDetail> hostDetails = new HashSet<HostDetail>();
+        hostDetails.addAll(host.values());
+        return hostDetails;
     }
 }
