@@ -55,9 +55,11 @@ public class HostCache{
                     detail.setLastTime(System.currentTimeMillis());
                 }
             } else {
-                logger.info("不存在host:{},all:{}", name, host);
                 detail = parse(hostsMap.get(name));
-                this.connection(detail);
+                if (!detail.getIp().equals(local.getIp()) || detail.getPort() != local.getPort()) {
+                    logger.info("不存在host:{},all:{}", name, host);
+                    this.connection(detail);
+                }
             }
         }
     }
@@ -76,12 +78,12 @@ public class HostCache{
     }
 
     private void connection(HostDetail hostDetail) throws InterruptedException {
-        if (!hostDetail.getIp().equals(local.getIp()) || hostDetail.getPort() != local.getPort()) {
-            if (!remoteHostChannelManager.isAvailable(hostDetail.keyFiled())) {
-                NetSocketClient client = new NetSocketClient(hostDetail.getIp(), hostDetail.getPort());
-                client.connection();
-            }
+
+        if (!remoteHostChannelManager.isAvailable(hostDetail.keyFiled())) {
+            NetSocketClient client = new NetSocketClient(hostDetail.getIp(), hostDetail.getPort());
+            client.connection();
         }
+
     }
 
     private HostDetail getHostOnCache(String hostName) {

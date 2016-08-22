@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * Unit test for simple App.
+ * Unit test for simple
  */
 public class AppTest 
     extends TestCase

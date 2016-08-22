@@ -22,6 +22,17 @@ public class DmsgServerConfig{
         }
     }
 
+    public DmsgServerConfig(String configPath) {
+        if (configPath == null) {
+            configPath = "core/src/main/resource/cfg.properties";
+        }
+        try {
+            properties.load(new FileInputStream(configPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setHost(String host) throws ServerConfigException {
         if (StringUtils.isEmpty(host)) {
             throw new ServerConfigException("set Host is null");

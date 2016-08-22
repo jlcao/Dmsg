@@ -51,10 +51,12 @@ public class DmsgServerContext {
     private MessageSender sender;
     private RemoteHostChannelManager remotChannelHosts;
     private LocalUserChannelManager userChannelManager;
+    private String configPath;
 
     private Logger logger = LoggerFactory.getLogger(DmsgServerContext.class);
 
-    private DmsgServerContext() {
+    private DmsgServerContext(String configPath) {
+        this.configPath = configPath;
         initConfig();
         executor = MessageExecutor.getInstance();
         redisPoolBuilder = new RedisPoolBuilder(config.getCacheHost(), config.getCachePort());
@@ -62,8 +64,10 @@ public class DmsgServerContext {
         addLastFilter(new AuthenticationFilter());
     }
 
+
     private void initConfig() {
-        config = new DmsgServerConfig();
+        config = new DmsgServerConfig(configPath);
+
     }
 
     public void addLastFilter(Filter filter) {
@@ -90,7 +94,7 @@ public class DmsgServerContext {
 
     public static DmsgServerContext getServerContext() {
         if (serverContext == null) {
-            serverContext = new DmsgServerContext();
+            serverContext = new DmsgServerContext(null);
         }
         return serverContext;
     }
@@ -218,5 +222,13 @@ public class DmsgServerContext {
 
     public void close() throws Exception {
         this.removeNode();
+    }
+
+
+    public static DmsgServerContext getServerContext(String configPath) {
+        if (serverContext == null) {
+            serverContext = new DmsgServerContext(configPath);
+        }
+        return serverContext;
     }
 }

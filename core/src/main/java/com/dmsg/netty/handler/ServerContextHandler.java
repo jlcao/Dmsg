@@ -69,6 +69,5 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
-        super.exceptionCaught(ctx,cause);
     }
 }
