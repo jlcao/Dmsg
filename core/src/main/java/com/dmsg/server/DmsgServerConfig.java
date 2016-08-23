@@ -45,12 +45,12 @@ public class DmsgServerConfig{
 
 
     public int getPort() {
-        String port = properties.getProperty("port","3710");
+        String port = properties.getProperty("server.port","3710");
         return new Integer(port);
     }
 
     public String getHost() {
-        String host = properties.getProperty("post", "localhost");
+        String host = properties.getProperty("server.host", "localhost");
         return host;
     }
 

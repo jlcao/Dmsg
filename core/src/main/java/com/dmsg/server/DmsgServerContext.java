@@ -79,7 +79,6 @@ public class DmsgServerContext {
     }
 
     public void builderNetSocketServer() throws ServerConfigException {
-
         builderNetSocketServer(config.getPort());
     }
     public void builderNetSocketServer(int port) throws ServerConfigException {

@@ -29,7 +29,7 @@ public class Dmsgstrap {
         dmsgServerContext.addLastFilter(new AuthReqFilter());
         dmsgServerContext.addLastFilter(new AuthResFilter());
         dmsgServerContext.addLastFilter(new BroadcastReqFilter());
-        dmsgServerContext.builderNetSocketServer(8080);
+        dmsgServerContext.builderNetSocketServer();
 
         if (!file.exists()) {
             file.createNewFile();

@@ -21,9 +21,8 @@
     </dependencies>
 
     <build>
-        <finalName>dmsg_0.1</finalName>
+        <finalName>dmsg-core</finalName>
         <plugins>
-            <!-- The configuration of maven-jar-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -61,28 +60,8 @@
                 </configuration>
             </plugin>
 
-            <!-- The configuration of maven-assembly-plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
-                <!-- The configuration of the plugin -->
-                <configuration>
-                    <!-- Specifies the configuration file of the assembly plugin -->
-                    <descriptors>
-                        <descriptor>src/main/resource/package.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+
 </project>

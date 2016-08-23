@@ -1,10 +1,15 @@
-#Dmsg(·Ö²¼Ê½ÊµÊ±Í¨Ñ¶¿ò¼Ü)
+#Dmsg(åˆ†å¸ƒå¼å®æ—¶é€šè®¯æ¡†æ¶)
 
-##½á¹¹Ä£ĞÍ
-![½á¹¹Ä£ĞÍ](https://github.com/jlcao/Dmsg/raw/master/source/image/jiegou.jpg)
+##ç»“æ„æ¨¡å‹
+![ç»“æ„æ¨¡å‹](https://github.com/jlcao/Dmsg/raw/master/source/image/jiegou.jpg)
 
-##ÏûÏ¢Ä£Ê½
-·Ö²¼Ê½Ä£Ê½£¬¿É¿¿Ä£Ê½(±Ø´ïÄ£¿é)£¬·Ç¿É¿¿Ä£Ê½(¿É´ï)
-##¹¦ÄÜ
-¼øÈ¨£¬ÍÆËÍ¹¦ÄÜ£¬ÊµÊ±Í¨Ñ¶£¬ÀëÏß³Ö¾Ã»¯£¬ÏûÏ¢Ñ­»·Í¨Öª¡£
+##å¿«é€Ÿä¸Šæ‰‹
+* [å¿«é€Ÿä½¿ç”¨](https://github.com/jlcao/Dmsg/wiki/%E5%BF%AB%E9%80%9F%E4%BD%BF%E7%94%A8)
+* [ä¸­æ–‡æ–‡æ¡£](https://github.com/jlcao/Dmsg/wiki/%E4%B8%AD%E6%96%87%E6%96%87%E6%A1%A3)
+
+##ç‰ˆæœ¬å‘å¸ƒ
+* [betaç‰ˆ](https://github.com/jlcao/Dmsg/releases/tag/0.1)
+
+##åŠ å…¥ç»„ç»‡
+* QQç¾¤:398984156
 
