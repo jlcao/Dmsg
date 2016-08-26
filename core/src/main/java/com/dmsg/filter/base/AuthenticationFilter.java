@@ -1,4 +1,4 @@
-package com.dmsg.auth;
+package com.dmsg.filter.base;
 
 import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.filter.DmsgFilter;

@@ -96,7 +96,6 @@ public class MessageBase {
         broadcastResMessage.setMsgId(msgId);
         broadcastResMessage.setUserName(user);
 
-
         return createMessage(broadcastResMessage,sourceAddress,header);
     }
 

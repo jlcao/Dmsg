@@ -1,4 +1,4 @@
-package com.dmsg.auth;
+package com.dmsg.filter.base;
 
 import com.alibaba.fastjson.JSON;
 import com.dmsg.cache.HostCache;

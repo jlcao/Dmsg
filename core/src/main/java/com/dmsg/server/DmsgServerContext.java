@@ -1,7 +1,7 @@
 package com.dmsg.server;
 
 import com.alibaba.fastjson.JSON;
-import com.dmsg.auth.AuthenticationFilter;
+import com.dmsg.filter.base.AuthenticationFilter;
 import com.dmsg.cache.CacheManager;
 import com.dmsg.cache.HostCache;
 import com.dmsg.cache.RedisPoolBuilder;

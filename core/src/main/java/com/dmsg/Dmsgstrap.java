@@ -1,8 +1,8 @@
 package com.dmsg;
 
-import com.dmsg.auth.AuthReqFilter;
-import com.dmsg.auth.AuthResFilter;
-import com.dmsg.auth.BroadcastReqFilter;
+import com.dmsg.filter.base.AuthReqFilter;
+import com.dmsg.filter.base.AuthResFilter;
+import com.dmsg.filter.base.BroadcastReqFilter;
 import com.dmsg.exception.ServerConfigException;
 import com.dmsg.server.DmsgServerContext;
 import com.dmsg.utils.NullUtils;

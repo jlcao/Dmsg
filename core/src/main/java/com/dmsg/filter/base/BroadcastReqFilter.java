@@ -1,4 +1,4 @@
-package com.dmsg.auth;
+package com.dmsg.filter.base;
 
 import com.dmsg.channel.LocalUserChannelManager;
 import com.dmsg.filter.DmsgFilter;
@@ -48,6 +48,11 @@ public class BroadcastReqFilter extends DmsgFilter {
             //发送消息
             sender.send(channelManager.getContext(broadcastReqMessage.getUserName()), sourceMessage);
             //回执消息
+
+            MessageBase res = MessageBase.createBroadcastRes(sourceMessage.getHeader().getMsgId(), broadcastReqMessage.getUserName(), messageContext.getServerContext().getHostDetail());
+
+            sender.send(messageContext.getChannelHandlerContext(), res);
+
         }
 
 
