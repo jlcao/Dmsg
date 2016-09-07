@@ -5,7 +5,7 @@ import com.dmsg.message.vo.MessageBase;
 /**
  * Created by cjl on 2016/7/28.
  */
-public class OfflineMessage {
+public class HostAskMessage {
 
     private long msgId;
 
@@ -14,7 +14,7 @@ public class OfflineMessage {
     private int retrySize = 0;
 
     private MessageBase message;
-    private String username;
+    private HostDetail host;
 
     public MessageBase getMessage() {
         return message;
@@ -48,11 +48,11 @@ public class OfflineMessage {
         retrySize++;
     }
 
-    public String getUsername() {
-        return username;
+    public void setHost(HostDetail host) {
+        this.host = host;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public HostDetail getHost() {
+        return host;
     }
 }

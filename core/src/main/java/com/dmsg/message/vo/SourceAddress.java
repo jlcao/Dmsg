@@ -32,6 +32,10 @@ public class SourceAddress implements Cloneable  {
         this.user = user;
     }
 
+    public String keyFiled() {
+        return host + ":" + port;
+    }
+
     @Override
     public SourceAddress clone() {
         try {

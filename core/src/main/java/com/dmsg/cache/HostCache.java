@@ -126,4 +126,8 @@ public class HostCache{
         hostDetails.addAll(host.values());
         return hostDetails;
     }
+
+    public HostDetail getHost(String s) {
+        return host.get(s);
+    }
 }

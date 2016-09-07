@@ -1,10 +1,13 @@
 package com.dmsg.netty.handler;
 
+import com.dmsg.channel.LocalUserChannelManager;
+import com.dmsg.channel.RemoteHostChannelManager;
 import com.dmsg.data.HostDetail;
 import com.dmsg.message.*;
 import com.dmsg.message.vo.AuthReqMessage;
 import com.dmsg.message.vo.MessageBase;
 import com.dmsg.server.DmsgServerContext;
+import com.dmsg.utils.NullUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -42,6 +45,20 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
       /*  MessageContext messageContext = new MessageContext(serverContext, ctx, "{header:{msgType:10},body:{}}");
         parser.parse(messageContext);
         executor.execute(new MessageHandler(messageContext));*/
+        RemoteHostChannelManager hostChannelManager = serverContext.getRemotHostsChannelManager();
+        LocalUserChannelManager userChannelManager = serverContext.getUserChannelManager();
+        String name = hostChannelManager.findUserByChannelId(ctx.channel().id());
+
+        if (!NullUtils.isEmpty(name)) {
+            serverContext.getHostCache().remove(name);
+            hostChannelManager.removeContext(name);
+        } else {
+            name = userChannelManager.findUserByChannelId(ctx.channel().id());
+            if (!NullUtils.isEmpty(name)) {
+                serverContext.getUserCache().remove(name);
+                userChannelManager.removeContext(name);
+            }
+        }
         logger.info("handlerRemoved");
 
     }
@@ -61,7 +78,6 @@ public class ServerContextHandler extends SimpleChannelInboundHandler<TextWebSoc
             b.setUsername("host " + local.getIp() + ":" + local.getPort());
             MessageBase messageBase = MessageBase.createAuthReq(b, local);
             b.setPassword(serverContext.getConfig().getServerAuthKey());
-
             sender.send(ctx, messageBase);
         }
     }

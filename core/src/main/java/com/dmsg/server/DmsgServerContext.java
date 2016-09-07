@@ -17,7 +17,7 @@ import com.dmsg.message.vo.MessageType;
 import com.dmsg.netty.NetSocketServer;
 import com.dmsg.netty.initializer.InitializerFactory;
 import com.dmsg.route.BufferRouteHandler;
-import com.dmsg.route.RouteFilter;
+import com.dmsg.filter.base.RouteFilter;
 import com.dmsg.route.RouteHandler;
 import com.dmsg.utils.NullUtils;
 import io.netty.channel.EventLoopGroup;
@@ -185,6 +185,7 @@ public class DmsgServerContext {
         if (userCache == null) {
             userCache = UserCache.getInstance(this);
         }
+
         return userCache;
     }
 

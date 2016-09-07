@@ -68,4 +68,19 @@ public class UserCache  {
     }
 
 
+    public void remove(String name) {
+        synchronized (users) {
+            users.remove(name);
+        }
+    }
+
+    public void put(UserDetail userDetail) {
+        synchronized (users) {
+            users.put(userDetail.getUserName(), userDetail);
+        }
+    }
+
+    public boolean contains(String user) {
+        return users.containsKey(user);
+    }
 }

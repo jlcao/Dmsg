@@ -14,6 +14,8 @@ public class DmsgServerConfig{
     private static Properties properties = new Properties();
     private int port;
     private String host;
+    private int maxRet;
+
     public DmsgServerConfig() {
         try {
             properties.load(new FileInputStream("core/src/main/resource/cfg.properties"));
@@ -90,4 +92,10 @@ public class DmsgServerConfig{
     public String getServerAuthKey() {
         return properties.getProperty("server.auth.key", "dmsg");
     }
+
+    public int getMaxRet() {
+        String str = properties.getProperty("max.ret", "10");
+        return Integer.parseInt(str);
+    }
+
 }
